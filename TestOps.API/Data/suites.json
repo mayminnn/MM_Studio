@@ -1,0 +1,159 @@
+[
+  {
+    "Id": "1396ed7e-6b95-4d10-b647-19e6d7c6651d",
+    "Name": "Login",
+    "CreatedAt": "2026-07-06T14:42:26.0422889+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_09",
+        "DisplayName": "Login As Admin",
+        "ExecutionName": "Login_As_Admin"
+      },
+      {
+        "ClassName": "tFJ_10",
+        "DisplayName": "Login With Valid Username Invalid Password",
+        "ExecutionName": "Login_With_Valid_Username_Invalid_Password"
+      },
+      {
+        "ClassName": "tFJ_11",
+        "DisplayName": "Login With Invalid Username Valid Password",
+        "ExecutionName": "Login_With_Invalid_Username_Valid_Password"
+      },
+      {
+        "ClassName": "tFJ_30",
+        "DisplayName": "Login With Blank Username Valid Password",
+        "ExecutionName": "Login_With_Blank_Username_Valid_Password"
+      },
+      {
+        "ClassName": "tFJ_31",
+        "DisplayName": "Login With Valid Username Blank Password",
+        "ExecutionName": "Login_With_Valid_Username_Blank_Password"
+      },
+      {
+        "ClassName": "tFJ_32",
+        "DisplayName": "Login White Space Username",
+        "ExecutionName": "Login_White_Space_Username"
+      }
+    ]
+  },
+  {
+    "Id": "3a014acb-e4eb-4bc4-b1a5-4b4de0f8d399",
+    "Name": "Pin Maps",
+    "CreatedAt": "2026-07-06T15:03:37.1790137+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_55",
+        "DisplayName": "Valid Pin Name",
+        "ExecutionName": "Valid_Pin_Name"
+      },
+      {
+        "ClassName": "tFJ_62",
+        "DisplayName": "Valid Pin Group",
+        "ExecutionName": "Valid_Pin_Group"
+      },
+      {
+        "ClassName": "tFJ_63",
+        "DisplayName": "Reuse Pin Name Value for Group",
+        "ExecutionName": "Reuse_Pin_Name_Value_for_Group"
+      }
+    ]
+  },
+  {
+    "Id": "775f173e-333e-4ddd-8836-b582bc4c2ca5",
+    "Name": "test1",
+    "CreatedAt": "2026-07-06T15:09:38.8966222+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_55",
+        "DisplayName": "Valid Pin Name",
+        "ExecutionName": "Valid_Pin_Name"
+      },
+      {
+        "ClassName": "tFJ_59",
+        "DisplayName": "Undefined Pin Name",
+        "ExecutionName": "Undefined_Pin_Name"
+      }
+    ]
+  },
+  {
+    "Id": "77e81c38-693e-47e9-8c55-a8167ccbb08d",
+    "Name": "Create",
+    "CreatedAt": "2026-07-06T15:30:27.1453209+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_19",
+        "DisplayName": "Create New Project with Valid Input",
+        "ExecutionName": "Create_New_Project_with_Valid_Input"
+      }
+    ]
+  },
+  {
+    "Id": "76ab893c-b0f1-4657-99e5-c5c9a647235d",
+    "Name": "Global Variables",
+    "CreatedAt": "2026-07-08T13:42:45.7172884+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_66",
+        "DisplayName": "Reference Global Variable in Another Sheets",
+        "ExecutionName": "Reference_Global_Variable_in_Another_Sheets"
+      },
+      {
+        "ClassName": "tFJ_68",
+        "DisplayName": "Configure Global Variables",
+        "ExecutionName": "Configure_Global_Variables"
+      }
+    ]
+  },
+  {
+    "Id": "a8789cae-fc61-4271-a4b1-6f953a14a63d",
+    "Name": "Regression",
+    "CreatedAt": "2026-07-08T14:25:08.3609417+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_09",
+        "DisplayName": "Login As Admin",
+        "ExecutionName": "Login_As_Admin"
+      },
+      {
+        "ClassName": "tFJ_103",
+        "DisplayName": "Non Numeric SW Bin",
+        "ExecutionName": "Non_Numeric_SW_Bin"
+      },
+      {
+        "ClassName": "tFJ_11",
+        "DisplayName": "Login With Invalid Username Valid Password",
+        "ExecutionName": "Login_With_Invalid_Username_Valid_Password"
+      },
+      {
+        "ClassName": "tFJ_128",
+        "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
+        "ExecutionName": "Flow_Auto_Assignment_Based_on_Sequence_and_Mode"
+      },
+      {
+        "ClassName": "tFJ_129",
+        "DisplayName": "Verify Pin Name Retrieval from Pin Maps",
+        "ExecutionName": "Verify_Pin_Name_Retrieval_from_Pin_Maps"
+      },
+      {
+        "ClassName": "tFJ_132",
+        "DisplayName": "Verify Automatic FRange Population",
+        "ExecutionName": "Verify_Automatic_FRange_Population"
+      },
+      {
+        "ClassName": "tFJ_133",
+        "DisplayName": "Verify Automatic CRange Population",
+        "ExecutionName": "Verify_Automatic_CRange_Population"
+      },
+      {
+        "ClassName": "tFJ_134",
+        "DisplayName": "SetDelay1",
+        "ExecutionName": "SetDelay1"
+      },
+      {
+        "ClassName": "tFJ_19",
+        "DisplayName": "Create New Project with Valid Input",
+        "ExecutionName": "Create_New_Project_with_Valid_Input"
+      }
+    ]
+  }
+]
