@@ -59,23 +59,6 @@
     ]
   },
   {
-    "Id": "775f173e-333e-4ddd-8836-b582bc4c2ca5",
-    "Name": "test1",
-    "CreatedAt": "2026-07-06T15:09:38.8966222+08:00",
-    "Tests": [
-      {
-        "ClassName": "tFJ_55",
-        "DisplayName": "Valid Pin Name",
-        "ExecutionName": "Valid_Pin_Name"
-      },
-      {
-        "ClassName": "tFJ_59",
-        "DisplayName": "Undefined Pin Name",
-        "ExecutionName": "Undefined_Pin_Name"
-      }
-    ]
-  },
-  {
     "Id": "77e81c38-693e-47e9-8c55-a8167ccbb08d",
     "Name": "Create",
     "CreatedAt": "2026-07-06T15:30:27.1453209+08:00",
@@ -105,25 +88,66 @@
     ]
   },
   {
-    "Id": "a8789cae-fc61-4271-a4b1-6f953a14a63d",
-    "Name": "Regression",
-    "CreatedAt": "2026-07-08T14:25:08.3609417+08:00",
+    "Id": "861f8ef1-26ad-4cf2-9a84-b88cf33b44f6",
+    "Name": "Open Project",
+    "CreatedAt": "2026-07-10T16:27:50.7297645+08:00",
     "Tests": [
       {
-        "ClassName": "tFJ_09",
-        "DisplayName": "Login As Admin",
-        "ExecutionName": "Login_As_Admin"
+        "ClassName": "tFJ_45",
+        "DisplayName": "Open Project",
+        "ExecutionName": "Open_Project"
+      }
+    ]
+  },
+  {
+    "Id": "016cf876-8e9a-4733-82e2-b5b6dc0ac9ce",
+    "Name": "Negative Pin",
+    "CreatedAt": "2026-07-10T16:33:03.9613312+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_59",
+        "DisplayName": "Undefined Pin Name",
+        "ExecutionName": "Undefined_Pin_Name"
       },
       {
-        "ClassName": "tFJ_103",
-        "DisplayName": "Non Numeric SW Bin",
-        "ExecutionName": "Non_Numeric_SW_Bin"
+        "ClassName": "tFJ_60",
+        "DisplayName": "Duplicate Pin Name",
+        "ExecutionName": "Duplicate_Pin_Name"
+      }
+    ]
+  },
+  {
+    "Id": "a8adfd13-b7ba-4f1b-9b56-6af6a2b85bb4",
+    "Name": "Bin",
+    "CreatedAt": "2026-07-10T16:46:58.349118+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_76",
+        "DisplayName": "Bin Configuration",
+        "ExecutionName": "Bin_Configuration"
       },
       {
-        "ClassName": "tFJ_11",
-        "DisplayName": "Login With Invalid Username Valid Password",
-        "ExecutionName": "Login_With_Invalid_Username_Valid_Password"
+        "ClassName": "tFJ_79",
+        "DisplayName": "Blank Bin Name",
+        "ExecutionName": "Blank_Bin_Name"
       },
+      {
+        "ClassName": "tFJ_80",
+        "DisplayName": "Blank SW Bin",
+        "ExecutionName": "Blank_SW_Bin"
+      },
+      {
+        "ClassName": "tFJ_81",
+        "DisplayName": "Blank HW Bin",
+        "ExecutionName": "Blank_HW_Bin"
+      }
+    ]
+  },
+  {
+    "Id": "a729f19b-0ead-483a-ad15-5ab494326ae5",
+    "Name": "DPS",
+    "CreatedAt": "2026-07-10T16:52:32.7477002+08:00",
+    "Tests": [
       {
         "ClassName": "tFJ_128",
         "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
@@ -145,14 +169,31 @@
         "ExecutionName": "Verify_Automatic_CRange_Population"
       },
       {
-        "ClassName": "tFJ_134",
-        "DisplayName": "SetDelay1",
-        "ExecutionName": "SetDelay1"
+        "ClassName": "tFJ_311",
+        "DisplayName": "Using Different Mode for Same DPS Set",
+        "ExecutionName": "Using_Different_Mode_for_Same_DPS_Set"
+      }
+    ]
+  },
+  {
+    "Id": "599607cf-3724-4d98-bf78-40a35ac1381b",
+    "Name": "Site",
+    "CreatedAt": "2026-07-10T17:02:44.2496688+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_282",
+        "DisplayName": "Validate Site Count Range Limit",
+        "ExecutionName": "Validate_Site_Count_Range_Limit"
       },
       {
-        "ClassName": "tFJ_19",
-        "DisplayName": "Create New Project with Valid Input",
-        "ExecutionName": "Create_New_Project_with_Valid_Input"
+        "ClassName": "tFJ_64",
+        "DisplayName": "Sync Site on Channel Map",
+        "ExecutionName": "Sync_Site_on_Channel_Map"
+      },
+      {
+        "ClassName": "tFJ_88",
+        "DisplayName": "Change Site Count",
+        "ExecutionName": "Change_Site_Count"
       }
     ]
   }

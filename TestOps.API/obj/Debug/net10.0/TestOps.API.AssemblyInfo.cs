@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestOps.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47a5e218a3759e6b370db3c76913250f2d1b2d00")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestOps.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestOps.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -37,7 +37,15 @@ export default function Dashboard() {
 
 <div style={{padding:20}}>
 
-<h1>Dashboard</h1>
+<div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
+        <h2>Dashboard</h2>
+      </div>
 
 <Row gutter={16}>
 

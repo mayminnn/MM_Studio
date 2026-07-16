@@ -1,12 +1,7 @@
 using System.Text.RegularExpressions;
+using TestOps.API.Models;
 
 namespace TestOps.API.Services;
-
-public class TestCaseInfo
-{
-    public string ClassName { get; set; } = "";
-    public string MethodName { get; set; } = "";
-}
 
 public static class TestCaseScanner
 {
@@ -34,6 +29,23 @@ public static class TestCaseScanner
                 continue;
 
             string className = classMatch.Groups[1].Value;
+            
+            List<string> tags = new();
+
+            var tagAttribute = Regex.Match(
+                text,
+                @"\[TestTags[^\]]*\]",
+                RegexOptions.Singleline);
+
+            if (tagAttribute.Success)
+            {
+                tags = Regex.Matches(
+                            tagAttribute.Value,
+                            "\"([^\"]+)\"")
+                        .Cast<Match>()
+                        .Select(m => m.Groups[1].Value)
+                        .ToList();
+            }
 
             // Rule #1 & #2
             if (!className.StartsWith("tFJ_"))
@@ -57,7 +69,8 @@ public static class TestCaseScanner
             results.Add(new TestCaseInfo
             {
                 ClassName = className,
-                MethodName = firstMethod
+                MethodName = firstMethod,
+                Tags = tags
             });
         }
 

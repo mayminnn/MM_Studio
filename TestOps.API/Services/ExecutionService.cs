@@ -18,7 +18,7 @@ namespace TestOps.API.Services
             var runId = Guid.NewGuid();
 
             string runnerPath =
-                @"C:\Users\maymtan\Documents\visual studio 2015\Projects\mm_studio\TestRunner\bin\Debug\TestRunner.exe";
+                @"..\TestRunner\bin\Debug\net48\TestRunner.exe";
 
             if (!File.Exists(runnerPath))
                 throw new Exception($"TestRunner not found:\n{runnerPath}");
