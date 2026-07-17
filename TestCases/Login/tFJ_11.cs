@@ -2,8 +2,6 @@
 using Automation.Pages;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Tools;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Test_Cases.Attributes;
 
 namespace Test_Cases.Login

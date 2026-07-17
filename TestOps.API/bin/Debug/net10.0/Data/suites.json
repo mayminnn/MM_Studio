@@ -196,5 +196,17 @@
         "ExecutionName": "Change_Site_Count"
       }
     ]
+  },
+  {
+    "Id": "d3348bac-a8b4-44f6-8409-33ff61dbd3a1",
+    "Name": "logsmoke",
+    "CreatedAt": "2026-07-17T11:10:49.3443009+08:00",
+    "Tests": [
+      {
+        "ClassName": "tFJ_33",
+        "DisplayName": "Start Another Instance Of Jazz",
+        "ExecutionName": "Start_Another_Instance_Of_Jazz"
+      }
+    ]
   }
 ]
