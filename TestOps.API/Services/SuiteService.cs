@@ -55,11 +55,12 @@ namespace TestOps.API.Services
             );
         }
 
-        public void Update(TestSuite updated)
+        public void Update(string id, TestSuite updated)
         {
             var suites = GetAll();
 
-            var index = suites.FindIndex(x => x.Id == updated.Id);
+            // var index = suites.FindIndex(x => x.Id == updated.Id);
+            var index = suites.FindIndex(x => x.Id == id);
 
             if (index == -1)
                 return;

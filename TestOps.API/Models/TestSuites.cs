@@ -2,6 +2,7 @@ namespace TestOps.API.Models
 {
     public class SuiteTest
     {
+        public int Order { get; set; }
         public string ClassName { get; set; } = "";
 
         public string DisplayName { get; set; } = "";

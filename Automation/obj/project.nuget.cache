@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "0rQIyiaYHzE=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\maymtan\\MM_Studio\\Automation\\Automation.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\maymtan\\.nuget\\packages\\flaui.core\\5.0.0\\flaui.core.5.0.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\flaui.uia2\\5.0.0\\flaui.uia2.5.0.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\flaui.uia3\\5.0.0\\flaui.uia3.5.0.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\interop.uiautomationclient\\10.19041.0\\interop.uiautomationclient.10.19041.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\system.codedom\\8.0.0\\system.codedom.8.0.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\system.management\\8.0.0\\system.management.8.0.0.nupkg.sha512",
+    "C:\\Users\\maymtan\\.nuget\\packages\\tesseract\\5.2.0\\tesseract.5.2.0.nupkg.sha512"
+  ],
+  "logs": []
+}

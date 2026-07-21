@@ -61,9 +61,17 @@ namespace TestOps.API.Controllers
                 .Where(t => !classNames.Contains(t.ClassName))
                 .ToList();
 
-            _service.Update(suite);
+            _service.Update(id, suite);
 
             return Ok(suite);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(string id, [FromBody] TestSuite suite)
+        {
+            _service.Update(id, suite);
+
+            return Ok();
         }
     }
 }

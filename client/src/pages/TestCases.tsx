@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Table, Input, Button, Modal } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Table, Input, Button, Modal, Tag, Select, Card,
+  Row, Col, Statistic, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getTestCases } from "../services/testcaseService";
 import axios from "axios";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 type TestCase = {
   className: string;
   methodName: string;
+  tags: string[];
 };
 
 type SuiteTest = {
@@ -17,106 +19,123 @@ type SuiteTest = {
 };
 
 export default function TestCases() {
+  const navigate = useNavigate();
+
   const [data, setData] = useState<TestCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
-
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suiteName, setSuiteName] = useState("Regression");
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    getTestCases()
-      .then((res) => setData(res))
-      .finally(() => setLoading(false));
+    getTestCases().then(setData).finally(() => setLoading(false));
   }, []);
 
-    // Filter
-  const filteredData = data.filter((item) =>
-    `${item.className} ${item.methodName}`
-      .toLowerCase()
-      .includes(searchText.toLowerCase())
-  );
-
-  // Row selection (IMPORTANT FIX)
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => {
-      setSelectedRowKeys(keys);
-    },
+  const tagColor = (tag: string) => {
+    switch (tag) {
+      case "Smoke": return "green";
+      case "Regression": return "blue";
+      case "Sanity": return "purple";
+      case "Negative": return "red";
+      case "Positive": return "cyan";
+      case "P0": return "volcano";
+      case "P1": return "gold";
+      case "Project_Explorer": return "geekblue";
+      case "Automated": return "magenta";
+      // case "Channel_Maps": return "orange";
+      // case "Site": return "lime";
+      default: return "default";
+    }
   };
 
-  // Table columns
+  const allTags = useMemo(
+    () => [...new Set(data.flatMap(x => x.tags))].sort(),
+    [data]
+  );
+
+  const filteredData = data.filter(t => {
+    const s = `${t.className} ${t.methodName}`.toLowerCase()
+      .includes(searchText.toLowerCase());
+    const tag = selectedTags.length === 0 ||
+      selectedTags.every(x => t.tags.includes(x));
+    return s && tag;
+  });
+
+  const smokeCount = data.filter(x=>x.tags.includes("Smoke")).length;
+  const regCount = data.filter(x=>x.tags.includes("Regression")).length;
+
   const columns: ColumnsType<TestCase> = [
+    { title:"Test ID", dataIndex:"className", width:140 },
+    { title:"Test Name", dataIndex:"methodName" },
     {
-      title: "Test ID",
-      dataIndex: "className",
-      sorter: (a, b) => a.className.localeCompare(b.className),
-    },
-    {
-      title: "Test Name",
-      dataIndex: "methodName",
-      sorter: (a, b) => a.methodName.localeCompare(b.methodName),
-    },
+      title:"Tags",
+      dataIndex:"tags",
+      render:(tags:string[])=>(
+        <>
+          {tags.map(t=><Tag color={tagColor(t)} key={t}>{t}</Tag>)}
+        </>
+      )
+    }
   ];
 
-  // Open modal
-  const handleCreateSuiteClick = () => {
-    setIsModalOpen(true);
-  };
+  const createSuite = async()=>{
+    const tests:SuiteTest[]=data
+      .filter(x=>selectedRowKeys.includes(x.className))
+      .map(x=>({
+        className:x.className,
+        displayName:x.methodName,
+        executionName:x.methodName.replace(/\s+/g,"_")
+      }));
 
-  // API call
-  const handleCreateSuiteConfirm = async () => {
-  try {
-    const selectedTests: SuiteTest[] = data
-    .filter((t) => selectedRowKeys.includes(t.className))
-    .map((t) => ({
-      className: t.className,
-      displayName: t.methodName,
-      executionName: t.methodName.replace(/\s+/g, "_"),
-    }));
-
-  await axios.post(
-    "http://localhost:5072/api/suite",
-    {
-      name: suiteName,
-      tests: selectedTests,
-    }
-  );
-
-    alert("Suite created successfully!");
+    await axios.post("http://localhost:5072/api/suite",{
+      name:suiteName,
+      tests
+    });
 
     setIsModalOpen(false);
     setSelectedRowKeys([]);
-
     navigate("/testsuites");
+  };
 
-  } catch (err) {
-    console.error(err);
-    alert("Failed to create suite.");
-  }
+  const handleRunSelected = async () => {
+
+    // const selectedTests = data
+    //     .filter(t => selectedRowKeys.includes(t.className))
+    //     .map(t => ({
+    //         className: t.className,
+    //         displayName: t.methodName,
+    //         executionName: t.methodName.replace(/\s+/g, "_")
+    //     }));
+
+    const selectedTests: SuiteTest[] =
+    selectedRowKeys.map((key, index) => {
+
+        const t = data.find(x => x.className === key)!;
+
+        return {
+            order: index + 1,
+            className: t.className,
+            displayName: t.methodName,
+            executionName: t.methodName.replace(/\s+/g, "_")
+        };
+
+    });
+
+    const res = await axios.post(
+      "http://localhost:5072/api/execution/run",
+      {
+          suiteName: "Ad Hoc Run",
+          tests: selectedTests
+      }
+    );
+
+    navigate(`/executions/${res.data.runId}`);
 };
 
   return (
-    <div style={{ padding: 20 }}>
-
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <h2 style={{ margin: 0 }}>Test Cases</h2>
-
-        <span>Total: {filteredData.length}</span>
-      </div>
-
-      {/* SEARCH + BUTTON */}
+    <div style={{padding:24}}>
       <div
         style={{
           display: "flex",
@@ -124,61 +143,83 @@ export default function TestCases() {
           marginBottom: 16,
         }}
       >
-        <Input
-          placeholder="Search test cases..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 300 }}
-        />
-
-        <Button
-          type="primary"
-          disabled={selectedRowKeys.length === 0}
-          onClick={handleCreateSuiteClick}
-        >
-          Create Suite
-        </Button>
+        <h2>Test Case Library</h2>
       </div>
 
-      {/* TABLE */}
+      <Row gutter={16} style={{marginBottom:20}}>
+        <Col span={6}><Card><Statistic title="Total Tests" value={data.length}/></Card></Col>
+        <Col span={6}><Card><Statistic title="Selected" value={selectedRowKeys.length}/></Card></Col>
+        <Col span={6}><Card><Statistic title="Smoke" value={smokeCount}/></Card></Col>
+        <Col span={6}><Card><Statistic title="Regression" value={regCount}/></Card></Col>
+      </Row>
+
+      <Card style={{marginBottom:20}}>
+        <Space wrap style={{width:"100%",justifyContent:"space-between"}}>
+          <Space wrap>
+            <Input
+              placeholder="Search..."
+              value={searchText}
+              onChange={e=>setSearchText(e.target.value)}
+              style={{width:260}}
+            />
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="Filter Tags"
+              style={{width:320}}
+              value={selectedTags}
+              onChange={setSelectedTags}
+              options={allTags.map(t=>({label:t,value:t}))}
+            />
+          </Space>
+          <Space wrap>
+            <Button
+              type="primary"
+              disabled={selectedRowKeys.length===0}
+              onClick={()=>setIsModalOpen(true)}
+            >
+              Create Suite ({selectedRowKeys.length})
+            </Button>
+
+            <Button
+              type="primary"
+              disabled={selectedRowKeys.length === 0}
+              onClick={handleRunSelected}
+            >
+                ▶ Run Selected
+            </Button>
+          </Space>
+        </Space>
+      </Card>
+
       <Table
-        rowSelection={rowSelection}
+        rowKey="className"
+        loading={loading}
         columns={columns}
         dataSource={filteredData}
-        loading={loading}
-        rowKey={(record) => record.className}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
+        rowSelection={{
+          selectedRowKeys,
+          onChange:setSelectedRowKeys
         }}
       />
 
-      {/* MODAL (MUST BE INSIDE RETURN) */}
       <Modal
         title="Create Test Suite"
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleCreateSuiteConfirm}
-        okText="Create"
+        onCancel={()=>setIsModalOpen(false)}
+        onOk={createSuite}
+        okText="Create Suite"
       >
-        <div style={{ marginBottom: 12 }}>
-          <label>Suite Name</label>
-          <Input
-            value={suiteName}
-            onChange={(e) => setSuiteName(e.target.value)}
-          />
-        </div>
+        <Input
+          value={suiteName}
+          onChange={e=>setSuiteName(e.target.value)}
+          placeholder="Suite Name"
+        />
 
-        <div>
-          <h4>Selected Tests:</h4>
-          <ul>
-            {selectedRowKeys.map((key) => (
-              <li key={key.toString()}>{key}</li>
-            ))}
-          </ul>
-        </div>
+        <p style={{marginTop:20}}>
+          <b>{selectedRowKeys.length}</b> test(s) selected.
+        </p>
       </Modal>
-
     </div>
   );
 }

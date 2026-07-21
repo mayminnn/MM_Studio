@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Automation/Automation.csproj" />
+  <Project Path="TestCases/TestCases.csproj" />
+  <Project Path="TestOps.API/TestOps.API.csproj" />
+</Solution>

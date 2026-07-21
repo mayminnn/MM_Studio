@@ -14,6 +14,17 @@ namespace TestOps.API.Controllers
         {
             _service = service;
         }
+
+        // [HttpPost("run")]
+        // public async Task<IActionResult> Run([FromBody] List<SuiteTest> tests)
+        // {
+        //     if (tests.Count == 0)
+        //         return BadRequest("No tests selected.");
+
+        //     var result = await _service.RunSuiteAsync(tests);
+
+        //     return Ok(result);
+        // }
         
         [HttpPost("run")]
         public async Task<IActionResult> Run([FromBody] RunSuiteRequest request)
@@ -23,7 +34,7 @@ namespace TestOps.API.Controllers
                 if (request.Tests.Count == 0)
                     return BadRequest("No tests selected.");
 
-                var result = await _service.RunSuiteAsync(request.Tests);
+                var result = await _service.RunSuiteAsync(request.SuiteName, request.Tests);
 
                 return Ok(result);
             // }
