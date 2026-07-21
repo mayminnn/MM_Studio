@@ -12,7 +12,7 @@ namespace TestOps.API.Services
             _resultService = resultService;
         }
 
-        public async Task<List<object>> RunSuiteAsync(List<SuiteTest> tests)
+        public async Task<RunExecutionResponse> RunSuiteAsync(string suiteName, List<SuiteTest> tests)
         {
             var results = new List<object>();
             var runId = Guid.NewGuid();
@@ -23,7 +23,8 @@ namespace TestOps.API.Services
             if (!File.Exists(runnerPath))
                 throw new Exception($"TestRunner not found:\n{runnerPath}");
 
-            foreach (var test in tests)
+            // foreach (var test in tests)
+            foreach(var test in tests.OrderBy(x => x.Order))
             {
                 var psi = new ProcessStartInfo
                 {
@@ -52,7 +53,7 @@ namespace TestOps.API.Services
                 {
                     Id = Guid.NewGuid(),
                     RunId = runId,
-                    SuiteName = test.DisplayName,
+                    SuiteName = suiteName,
                     ClassName = test.ClassName,
                     DisplayName = test.DisplayName,
                     Status = process.ExitCode == 0 ? "Passed" : "Failed",
@@ -73,7 +74,12 @@ namespace TestOps.API.Services
                 });
             }
 
-            return results;
+            // return results;
+            return new RunExecutionResponse
+            {
+                RunId = runId,
+                Results = results
+            };
         }
     }
 }

@@ -99,6 +99,41 @@ export default function TestCases() {
     navigate("/testsuites");
   };
 
+  const handleRunSelected = async () => {
+
+    // const selectedTests = data
+    //     .filter(t => selectedRowKeys.includes(t.className))
+    //     .map(t => ({
+    //         className: t.className,
+    //         displayName: t.methodName,
+    //         executionName: t.methodName.replace(/\s+/g, "_")
+    //     }));
+
+    const selectedTests: SuiteTest[] =
+    selectedRowKeys.map((key, index) => {
+
+        const t = data.find(x => x.className === key)!;
+
+        return {
+            order: index + 1,
+            className: t.className,
+            displayName: t.methodName,
+            executionName: t.methodName.replace(/\s+/g, "_")
+        };
+
+    });
+
+    const res = await axios.post(
+      "http://localhost:5072/api/execution/run",
+      {
+          suiteName: "Ad Hoc Run",
+          tests: selectedTests
+      }
+    );
+
+    navigate(`/executions/${res.data.runId}`);
+};
+
   return (
     <div style={{padding:24}}>
       <div
@@ -137,14 +172,23 @@ export default function TestCases() {
               options={allTags.map(t=>({label:t,value:t}))}
             />
           </Space>
+          <Space wrap>
+            <Button
+              type="primary"
+              disabled={selectedRowKeys.length===0}
+              onClick={()=>setIsModalOpen(true)}
+            >
+              Create Suite ({selectedRowKeys.length})
+            </Button>
 
-          <Button
-            type="primary"
-            disabled={selectedRowKeys.length===0}
-            onClick={()=>setIsModalOpen(true)}
-          >
-            Create Suite ({selectedRowKeys.length})
-          </Button>
+            <Button
+              type="primary"
+              disabled={selectedRowKeys.length === 0}
+              onClick={handleRunSelected}
+            >
+                ▶ Run Selected
+            </Button>
+          </Space>
         </Space>
       </Card>
 

@@ -5,6 +5,7 @@ import { Button, Table, message, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 type SuiteTest = {
+  order: number;
   className: string;
   displayName: string;
   executionName: string;
@@ -53,17 +54,17 @@ export default function SuiteDetails() {
   // ----------------------------
   const removeSelected = async () => {
     try {
-        await axios.post(
+      await axios.post(
         `http://localhost:5072/api/suite/${id}/tests/remove`,
         selectedRowKeys
-        );
+      );
 
-        message.success("Tests removed");
-        setSelectedRowKeys([]);
-        loadSuite();
+      message.success("Tests removed");
+      setSelectedRowKeys([]);
+      loadSuite();
     } catch (err) {
-        console.error(err);
-        message.error("Failed to remove tests");
+      console.error(err);
+      message.error("Failed to remove tests");
     }
   };
 
@@ -77,10 +78,121 @@ export default function SuiteDetails() {
     },
   };
 
+  const moveUp = async (index: number) => {
+
+    // if (index === 0)
+    if (!suite || index === 0)
+      return;
+
+    const updated = [...suite.tests];
+
+    [updated[index - 1], updated[index]] =
+      [updated[index], updated[index - 1]];
+
+    updated.forEach((t, i) => {
+      t.order = i + 1;
+    });
+
+    // setSuite({
+    //     ...suite,
+    //     tests: updated
+    // });
+    const updatedSuite = {
+      ...suite,
+      tests: updated
+    };
+
+    setSuite(updatedSuite);
+
+    try {
+
+      await axios.put(
+        `http://localhost:5072/api/suite/${suite.id}`,
+        updatedSuite
+      );
+
+    }
+    catch {
+
+      message.error("Failed to save order");
+    }
+  };
+
+  const moveDown = async (index: number) => {
+
+    if (!suite || index === suite.tests.length - 1)
+      return;
+
+    const updated = [...suite.tests];
+
+    [updated[index], updated[index + 1]] =
+      [updated[index + 1], updated[index]];
+
+    updated.forEach((t, i) => {
+      t.order = i + 1;
+    });
+
+    // setSuite({
+    //     ...suite,
+    //     tests: updated
+    // });
+    const updatedSuite = {
+      ...suite,
+      tests: updated
+    };
+
+    setSuite(updatedSuite);
+
+    try {
+
+      await axios.put(
+        `http://localhost:5072/api/suite/${suite.id}`,
+        updatedSuite
+      );
+
+    }
+    catch {
+
+      message.error("Failed to save order");
+
+    }
+
+  };
+
   // ----------------------------
   // Table columns
   // ----------------------------
   const columns: ColumnsType<SuiteTest> = [
+    {
+      title: "#",
+      dataIndex: "order",
+      width: 60
+    },
+    {
+      title: "Move",
+      width: 100,
+      render: (_, record, index) => (
+        <>
+          <Button
+            size="small"
+            disabled={index === 0}
+            onClick={() => moveUp(index)}
+          >
+            ↑
+          </Button>
+
+          <Button
+            size="small"
+            // disabled={index === suite.tests.length - 1}
+            disabled={index >= (suite?.tests.length ?? 0) - 1}
+            style={{ marginLeft: 5 }}
+            onClick={() => moveDown(index)}
+          >
+            ↓
+          </Button>
+        </>
+      )
+    },
     {
       title: "Test ID",
       dataIndex: "className",

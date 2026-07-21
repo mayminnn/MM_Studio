@@ -5,31 +5,37 @@
     "CreatedAt": "2026-07-06T14:42:26.0422889+08:00",
     "Tests": [
       {
-        "ClassName": "tFJ_09",
-        "DisplayName": "Login As Admin",
-        "ExecutionName": "Login_As_Admin"
-      },
-      {
+        "Order": 1,
         "ClassName": "tFJ_10",
         "DisplayName": "Login With Valid Username Invalid Password",
         "ExecutionName": "Login_With_Valid_Username_Invalid_Password"
       },
       {
+        "Order": 2,
         "ClassName": "tFJ_11",
         "DisplayName": "Login With Invalid Username Valid Password",
         "ExecutionName": "Login_With_Invalid_Username_Valid_Password"
       },
       {
+        "Order": 3,
         "ClassName": "tFJ_30",
         "DisplayName": "Login With Blank Username Valid Password",
         "ExecutionName": "Login_With_Blank_Username_Valid_Password"
       },
       {
+        "Order": 4,
+        "ClassName": "tFJ_09",
+        "DisplayName": "Login As Admin",
+        "ExecutionName": "Login_As_Admin"
+      },
+      {
+        "Order": 5,
         "ClassName": "tFJ_31",
         "DisplayName": "Login With Valid Username Blank Password",
         "ExecutionName": "Login_With_Valid_Username_Blank_Password"
       },
       {
+        "Order": 6,
         "ClassName": "tFJ_32",
         "DisplayName": "Login White Space Username",
         "ExecutionName": "Login_White_Space_Username"
@@ -42,31 +48,22 @@
     "CreatedAt": "2026-07-06T15:03:37.1790137+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_55",
         "DisplayName": "Valid Pin Name",
         "ExecutionName": "Valid_Pin_Name"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_62",
         "DisplayName": "Valid Pin Group",
         "ExecutionName": "Valid_Pin_Group"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_63",
         "DisplayName": "Reuse Pin Name Value for Group",
         "ExecutionName": "Reuse_Pin_Name_Value_for_Group"
-      }
-    ]
-  },
-  {
-    "Id": "77e81c38-693e-47e9-8c55-a8167ccbb08d",
-    "Name": "Create",
-    "CreatedAt": "2026-07-06T15:30:27.1453209+08:00",
-    "Tests": [
-      {
-        "ClassName": "tFJ_19",
-        "DisplayName": "Create New Project with Valid Input",
-        "ExecutionName": "Create_New_Project_with_Valid_Input"
       }
     ]
   },
@@ -76,11 +73,13 @@
     "CreatedAt": "2026-07-08T13:42:45.7172884+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_66",
         "DisplayName": "Reference Global Variable in Another Sheets",
         "ExecutionName": "Reference_Global_Variable_in_Another_Sheets"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_68",
         "DisplayName": "Configure Global Variables",
         "ExecutionName": "Configure_Global_Variables"
@@ -93,6 +92,7 @@
     "CreatedAt": "2026-07-10T16:27:50.7297645+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_45",
         "DisplayName": "Open Project",
         "ExecutionName": "Open_Project"
@@ -105,11 +105,13 @@
     "CreatedAt": "2026-07-10T16:33:03.9613312+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_59",
         "DisplayName": "Undefined Pin Name",
         "ExecutionName": "Undefined_Pin_Name"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_60",
         "DisplayName": "Duplicate Pin Name",
         "ExecutionName": "Duplicate_Pin_Name"
@@ -122,21 +124,25 @@
     "CreatedAt": "2026-07-10T16:46:58.349118+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_76",
         "DisplayName": "Bin Configuration",
         "ExecutionName": "Bin_Configuration"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_79",
         "DisplayName": "Blank Bin Name",
         "ExecutionName": "Blank_Bin_Name"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_80",
         "DisplayName": "Blank SW Bin",
         "ExecutionName": "Blank_SW_Bin"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_81",
         "DisplayName": "Blank HW Bin",
         "ExecutionName": "Blank_HW_Bin"
@@ -149,26 +155,31 @@
     "CreatedAt": "2026-07-10T16:52:32.7477002+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_128",
         "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
         "ExecutionName": "Flow_Auto_Assignment_Based_on_Sequence_and_Mode"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_129",
         "DisplayName": "Verify Pin Name Retrieval from Pin Maps",
         "ExecutionName": "Verify_Pin_Name_Retrieval_from_Pin_Maps"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_132",
         "DisplayName": "Verify Automatic FRange Population",
         "ExecutionName": "Verify_Automatic_FRange_Population"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_133",
         "DisplayName": "Verify Automatic CRange Population",
         "ExecutionName": "Verify_Automatic_CRange_Population"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_311",
         "DisplayName": "Using Different Mode for Same DPS Set",
         "ExecutionName": "Using_Different_Mode_for_Same_DPS_Set"
@@ -181,16 +192,19 @@
     "CreatedAt": "2026-07-10T17:02:44.2496688+08:00",
     "Tests": [
       {
+        "Order": 0,
         "ClassName": "tFJ_282",
         "DisplayName": "Validate Site Count Range Limit",
         "ExecutionName": "Validate_Site_Count_Range_Limit"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_64",
         "DisplayName": "Sync Site on Channel Map",
         "ExecutionName": "Sync_Site_on_Channel_Map"
       },
       {
+        "Order": 0,
         "ClassName": "tFJ_88",
         "DisplayName": "Change Site Count",
         "ExecutionName": "Change_Site_Count"
@@ -198,14 +212,33 @@
     ]
   },
   {
-    "Id": "d3348bac-a8b4-44f6-8409-33ff61dbd3a1",
-    "Name": "logsmoke",
-    "CreatedAt": "2026-07-17T11:10:49.3443009+08:00",
+    "Id": "d84b8132-05ce-4b83-985a-534ba534cef8",
+    "Name": "order test",
+    "CreatedAt": "2026-07-21T10:18:27.6600163+08:00",
     "Tests": [
       {
-        "ClassName": "tFJ_33",
-        "DisplayName": "Start Another Instance Of Jazz",
-        "ExecutionName": "Start_Another_Instance_Of_Jazz"
+        "Order": 1,
+        "ClassName": "tFJ_31",
+        "DisplayName": "Login With Valid Username Blank Password",
+        "ExecutionName": "Login_With_Valid_Username_Blank_Password"
+      },
+      {
+        "Order": 2,
+        "ClassName": "tFJ_10",
+        "DisplayName": "Login With Valid Username Invalid Password",
+        "ExecutionName": "Login_With_Valid_Username_Invalid_Password"
+      },
+      {
+        "Order": 3,
+        "ClassName": "tFJ_30",
+        "DisplayName": "Login With Blank Username Valid Password",
+        "ExecutionName": "Login_With_Blank_Username_Valid_Password"
+      },
+      {
+        "Order": 4,
+        "ClassName": "tFJ_09",
+        "DisplayName": "Login As Admin",
+        "ExecutionName": "Login_As_Admin"
       }
     ]
   }
