@@ -25,8 +25,10 @@ namespace Test_Cases.Login
             var helper = new UIHelper();
 
             var loginPanel = helper.Find(AppManager.MainWindow, "tblLogin");
+            var instancelink = helper.Find(loginPanel, "linkLabelNewInstance");
 
             Assert.IsNotNull(loginPanel, "Login panel not found.");
+            Assert.IsNotNull(instancelink, "Start another instance link not found.");
 
             //--------------------------------------------------
             // Find hyperlink
@@ -44,35 +46,99 @@ namespace Test_Cases.Login
             Assert.IsNotNull(link, "Start another instance link not found.");
 
             //--------------------------------------------------
+            // Count Jazz processes BEFORE click
+            //--------------------------------------------------
+
+            var jazzProcesses = Process.GetProcesses()
+                .Where(p =>
+                {
+                    try
+                    {
+                        return p.ProcessName.IndexOf("Jazz", StringComparison.OrdinalIgnoreCase) >= 0;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
+                .ToList();
+
+            Console.WriteLine("=== Processes BEFORE ===");
+
+            foreach (var p in jazzProcesses)
+            {
+                Console.WriteLine($"{p.Id} - {p.ProcessName}");
+            }
+
+            Console.WriteLine($"Count: {jazzProcesses.Count}");
+
+            int beforeProcesses = jazzProcesses.Count;
+
+            //--------------------------------------------------
             // Click hyperlink
             //--------------------------------------------------
 
-            link.Click();
+            Console.WriteLine($"Supports Invoke: {link.Patterns.Invoke.IsSupported}");
+
+            if (!link.Patterns.Invoke.IsSupported)
+            {
+                Assert.Fail("Hyperlink does not support Invoke pattern.");
+            }
+
+            link.Patterns.Invoke.Pattern.Invoke();
 
             Wait.UntilInputIsProcessed();
 
-            System.Threading.Thread.Sleep(2000);
+            // Debug.WriteLine("Clicked Start Another Instance link.");
+            Console.WriteLine("Clicked Start Another Instance link.");
+
 
             //--------------------------------------------------
-            // Verify another Jazz window appears
+            // Wait for another Jazz process
             //--------------------------------------------------
 
-            var desktop = AppManager.Automation.GetDesktop();
-
-            var windows = Retry.While(() =>
+            bool launched = Retry.WhileFalse(() =>
             {
-                return desktop.FindAllChildren()
-                            .Where(w => w.Name.Contains("Jazz"))
-                            .ToArray();
+                var count = Process.GetProcesses()
+                    .Count(p =>
+                    {
+                        try
+                        {
+                            return p.ProcessName.Contains("Jazz");
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    });
+
+                return count == beforeProcesses + 1;
 
             },
-            result => result.Length < 2,
-            TimeSpan.FromSeconds(10)).Result;
+            TimeSpan.FromSeconds(15)).Result;
 
-            Assert.IsGreaterThanOrEqualTo(2,
-                windows.Length, "Second Jazz window was not opened.");
+            Console.WriteLine($"Before: {beforeProcesses}");
 
-            Debug.WriteLine($"Detected {windows.Length} Jazz windows.");
+            var afterProcesses = Process.GetProcesses()
+                .Count(p =>
+                {
+                    try
+                    {
+                        return p.ProcessName.Contains("Jazz");
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
+
+            Console.WriteLine($"After: {afterProcesses}");
+
+            Assert.IsTrue(
+                launched,
+                "A new Jazz process was not started.");
+
+            Console.WriteLine("Second Jazz instance launched successfully.");
 
             Cleanup();
         }

@@ -87,19 +87,6 @@
     ]
   },
   {
-    "Id": "861f8ef1-26ad-4cf2-9a84-b88cf33b44f6",
-    "Name": "Open Project",
-    "CreatedAt": "2026-07-10T16:27:50.7297645+08:00",
-    "Tests": [
-      {
-        "Order": 0,
-        "ClassName": "tFJ_45",
-        "DisplayName": "Open Project",
-        "ExecutionName": "Open_Project"
-      }
-    ]
-  },
-  {
     "Id": "016cf876-8e9a-4733-82e2-b5b6dc0ac9ce",
     "Name": "Negative Pin",
     "CreatedAt": "2026-07-10T16:33:03.9613312+08:00",
@@ -155,34 +142,34 @@
     "CreatedAt": "2026-07-10T16:52:32.7477002+08:00",
     "Tests": [
       {
-        "Order": 0,
-        "ClassName": "tFJ_128",
-        "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
-        "ExecutionName": "Flow_Auto_Assignment_Based_on_Sequence_and_Mode"
-      },
-      {
-        "Order": 0,
-        "ClassName": "tFJ_129",
-        "DisplayName": "Verify Pin Name Retrieval from Pin Maps",
-        "ExecutionName": "Verify_Pin_Name_Retrieval_from_Pin_Maps"
-      },
-      {
-        "Order": 0,
+        "Order": 1,
         "ClassName": "tFJ_132",
         "DisplayName": "Verify Automatic FRange Population",
         "ExecutionName": "Verify_Automatic_FRange_Population"
       },
       {
-        "Order": 0,
+        "Order": 2,
+        "ClassName": "tFJ_311",
+        "DisplayName": "Using Different Mode for Same DPS Set",
+        "ExecutionName": "Using_Different_Mode_for_Same_DPS_Set"
+      },
+      {
+        "Order": 3,
+        "ClassName": "tFJ_129",
+        "DisplayName": "Verify Pin Name Retrieval from Pin Maps",
+        "ExecutionName": "Verify_Pin_Name_Retrieval_from_Pin_Maps"
+      },
+      {
+        "Order": 4,
         "ClassName": "tFJ_133",
         "DisplayName": "Verify Automatic CRange Population",
         "ExecutionName": "Verify_Automatic_CRange_Population"
       },
       {
-        "Order": 0,
-        "ClassName": "tFJ_311",
-        "DisplayName": "Using Different Mode for Same DPS Set",
-        "ExecutionName": "Using_Different_Mode_for_Same_DPS_Set"
+        "Order": 5,
+        "ClassName": "tFJ_128",
+        "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
+        "ExecutionName": "Flow_Auto_Assignment_Based_on_Sequence_and_Mode"
       }
     ]
   },
@@ -208,37 +195,6 @@
         "ClassName": "tFJ_88",
         "DisplayName": "Change Site Count",
         "ExecutionName": "Change_Site_Count"
-      }
-    ]
-  },
-  {
-    "Id": "d84b8132-05ce-4b83-985a-534ba534cef8",
-    "Name": "order test",
-    "CreatedAt": "2026-07-21T10:18:27.6600163+08:00",
-    "Tests": [
-      {
-        "Order": 1,
-        "ClassName": "tFJ_31",
-        "DisplayName": "Login With Valid Username Blank Password",
-        "ExecutionName": "Login_With_Valid_Username_Blank_Password"
-      },
-      {
-        "Order": 2,
-        "ClassName": "tFJ_10",
-        "DisplayName": "Login With Valid Username Invalid Password",
-        "ExecutionName": "Login_With_Valid_Username_Invalid_Password"
-      },
-      {
-        "Order": 3,
-        "ClassName": "tFJ_30",
-        "DisplayName": "Login With Blank Username Valid Password",
-        "ExecutionName": "Login_With_Blank_Username_Valid_Password"
-      },
-      {
-        "Order": 4,
-        "ClassName": "tFJ_09",
-        "DisplayName": "Login As Admin",
-        "ExecutionName": "Login_As_Admin"
       }
     ]
   }

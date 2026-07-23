@@ -15,7 +15,7 @@ namespace Test_Cases.Login
         // protected virtual string ProjectName => "OX01G10";
         // protected virtual string Version => "v1";
         protected virtual string ProjectName => "MM_TEST";
-        protected virtual string Version => "2656";
+        protected virtual string Version => "0525";
         protected virtual bool AutoLogin => true;
         
         [TestInitialize]
