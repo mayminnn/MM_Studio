@@ -1,107 +1,20 @@
 [
   {
-    "Id": "1396ed7e-6b95-4d10-b647-19e6d7c6651d",
-    "Name": "Login",
-    "CreatedAt": "2026-07-06T14:42:26.0422889+08:00",
-    "Tests": [
-      {
-        "Order": 1,
-        "ClassName": "tFJ_10",
-        "DisplayName": "Login With Valid Username Invalid Password",
-        "ExecutionName": "Login_With_Valid_Username_Invalid_Password"
-      },
-      {
-        "Order": 2,
-        "ClassName": "tFJ_11",
-        "DisplayName": "Login With Invalid Username Valid Password",
-        "ExecutionName": "Login_With_Invalid_Username_Valid_Password"
-      },
-      {
-        "Order": 3,
-        "ClassName": "tFJ_30",
-        "DisplayName": "Login With Blank Username Valid Password",
-        "ExecutionName": "Login_With_Blank_Username_Valid_Password"
-      },
-      {
-        "Order": 4,
-        "ClassName": "tFJ_09",
-        "DisplayName": "Login As Admin",
-        "ExecutionName": "Login_As_Admin"
-      },
-      {
-        "Order": 5,
-        "ClassName": "tFJ_31",
-        "DisplayName": "Login With Valid Username Blank Password",
-        "ExecutionName": "Login_With_Valid_Username_Blank_Password"
-      },
-      {
-        "Order": 6,
-        "ClassName": "tFJ_32",
-        "DisplayName": "Login White Space Username",
-        "ExecutionName": "Login_White_Space_Username"
-      }
-    ]
-  },
-  {
-    "Id": "3a014acb-e4eb-4bc4-b1a5-4b4de0f8d399",
-    "Name": "Pin Maps",
-    "CreatedAt": "2026-07-06T15:03:37.1790137+08:00",
-    "Tests": [
-      {
-        "Order": 0,
-        "ClassName": "tFJ_55",
-        "DisplayName": "Valid Pin Name",
-        "ExecutionName": "Valid_Pin_Name"
-      },
-      {
-        "Order": 0,
-        "ClassName": "tFJ_62",
-        "DisplayName": "Valid Pin Group",
-        "ExecutionName": "Valid_Pin_Group"
-      },
-      {
-        "Order": 0,
-        "ClassName": "tFJ_63",
-        "DisplayName": "Reuse Pin Name Value for Group",
-        "ExecutionName": "Reuse_Pin_Name_Value_for_Group"
-      }
-    ]
-  },
-  {
     "Id": "76ab893c-b0f1-4657-99e5-c5c9a647235d",
     "Name": "Global Variables",
     "CreatedAt": "2026-07-08T13:42:45.7172884+08:00",
     "Tests": [
       {
-        "Order": 0,
-        "ClassName": "tFJ_66",
-        "DisplayName": "Reference Global Variable in Another Sheets",
-        "ExecutionName": "Reference_Global_Variable_in_Another_Sheets"
-      },
-      {
-        "Order": 0,
+        "Order": 1,
         "ClassName": "tFJ_68",
         "DisplayName": "Configure Global Variables",
         "ExecutionName": "Configure_Global_Variables"
-      }
-    ]
-  },
-  {
-    "Id": "016cf876-8e9a-4733-82e2-b5b6dc0ac9ce",
-    "Name": "Negative Pin",
-    "CreatedAt": "2026-07-10T16:33:03.9613312+08:00",
-    "Tests": [
-      {
-        "Order": 0,
-        "ClassName": "tFJ_59",
-        "DisplayName": "Undefined Pin Name",
-        "ExecutionName": "Undefined_Pin_Name"
       },
       {
-        "Order": 0,
-        "ClassName": "tFJ_60",
-        "DisplayName": "Duplicate Pin Name",
-        "ExecutionName": "Duplicate_Pin_Name"
+        "Order": 2,
+        "ClassName": "tFJ_66",
+        "DisplayName": "Reference Global Variable in Another Sheets",
+        "ExecutionName": "Reference_Global_Variable_in_Another_Sheets"
       }
     ]
   },
@@ -111,28 +24,28 @@
     "CreatedAt": "2026-07-10T16:46:58.349118+08:00",
     "Tests": [
       {
-        "Order": 0,
+        "Order": 1,
         "ClassName": "tFJ_76",
         "DisplayName": "Bin Configuration",
         "ExecutionName": "Bin_Configuration"
       },
       {
-        "Order": 0,
-        "ClassName": "tFJ_79",
-        "DisplayName": "Blank Bin Name",
-        "ExecutionName": "Blank_Bin_Name"
-      },
-      {
-        "Order": 0,
+        "Order": 2,
         "ClassName": "tFJ_80",
         "DisplayName": "Blank SW Bin",
         "ExecutionName": "Blank_SW_Bin"
       },
       {
-        "Order": 0,
+        "Order": 3,
         "ClassName": "tFJ_81",
         "DisplayName": "Blank HW Bin",
         "ExecutionName": "Blank_HW_Bin"
+      },
+      {
+        "Order": 4,
+        "ClassName": "tFJ_79",
+        "DisplayName": "Blank Bin Name",
+        "ExecutionName": "Blank_Bin_Name"
       }
     ]
   },
@@ -179,22 +92,89 @@
     "CreatedAt": "2026-07-10T17:02:44.2496688+08:00",
     "Tests": [
       {
-        "Order": 0,
+        "Order": 1,
         "ClassName": "tFJ_282",
         "DisplayName": "Validate Site Count Range Limit",
         "ExecutionName": "Validate_Site_Count_Range_Limit"
       },
       {
-        "Order": 0,
+        "Order": 2,
         "ClassName": "tFJ_64",
         "DisplayName": "Sync Site on Channel Map",
         "ExecutionName": "Sync_Site_on_Channel_Map"
       },
       {
-        "Order": 0,
+        "Order": 3,
         "ClassName": "tFJ_88",
         "DisplayName": "Change Site Count",
         "ExecutionName": "Change_Site_Count"
+      }
+    ]
+  },
+  {
+    "Id": "4a904f4a-58db-4252-a6f1-12c79a3b5119",
+    "Name": "Smoke",
+    "CreatedAt": "2026-07-24T14:22:51.0079587+08:00",
+    "Tests": [
+      {
+        "Order": 1,
+        "ClassName": "tFJ_88",
+        "DisplayName": "Change Site Count",
+        "ExecutionName": "Change_Site_Count"
+      },
+      {
+        "Order": 2,
+        "ClassName": "tFJ_09",
+        "DisplayName": "Login As Admin",
+        "ExecutionName": "Login_As_Admin"
+      },
+      {
+        "Order": 3,
+        "ClassName": "tFJ_45",
+        "DisplayName": "Open Project",
+        "ExecutionName": "Open_Project"
+      },
+      {
+        "Order": 4,
+        "ClassName": "tFJ_51",
+        "DisplayName": "Close Project",
+        "ExecutionName": "Close_Project"
+      },
+      {
+        "Order": 5,
+        "ClassName": "tFJ_55",
+        "DisplayName": "Valid Pin Name",
+        "ExecutionName": "Valid_Pin_Name"
+      },
+      {
+        "Order": 6,
+        "ClassName": "tFJ_62",
+        "DisplayName": "Valid Pin Group",
+        "ExecutionName": "Valid_Pin_Group"
+      },
+      {
+        "Order": 7,
+        "ClassName": "tFJ_64",
+        "DisplayName": "Sync Site on Channel Map",
+        "ExecutionName": "Sync_Site_on_Channel_Map"
+      },
+      {
+        "Order": 8,
+        "ClassName": "tFJ_68",
+        "DisplayName": "Configure Global Variables",
+        "ExecutionName": "Configure_Global_Variables"
+      },
+      {
+        "Order": 9,
+        "ClassName": "tFJ_66",
+        "DisplayName": "Reference Global Variable in Another Sheets",
+        "ExecutionName": "Reference_Global_Variable_in_Another_Sheets"
+      },
+      {
+        "Order": 10,
+        "ClassName": "tFJ_76",
+        "DisplayName": "Bin Configuration",
+        "ExecutionName": "Bin_Configuration"
       }
     ]
   }

@@ -107,7 +107,11 @@ namespace Automation.Components
 
             Thread.Sleep(300);
 
-            return System.Windows.Forms.Clipboard.GetText()?.Trim();
+            var text = System.Windows.Forms.Clipboard.GetText()?.Trim();
+
+            Console.WriteLine($"Clipboard = [{text}]");
+
+            return text;
         }
 
         private void ClearAndEnterCellValue(string cellName, string value)

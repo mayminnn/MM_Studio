@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Table, Input, Button, Modal, Tag, Select, Card,
-  Row, Col, Statistic, Space } from "antd";
+import {
+  Table, Input, Button, Modal, Tag, Select, Card,
+  Row, Col, Statistic, Space, Spin, Progress
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getTestCases } from "../services/testcaseService";
 import axios from "axios";
@@ -28,10 +30,46 @@ export default function TestCases() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suiteName, setSuiteName] = useState("Regression");
+  const [running, setRunning] = useState(false);
+  const [runId, setRunId] = useState("");
+  const [status, setStatus] = useState<any>(null);
 
   useEffect(() => {
     getTestCases().then(setData).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+
+    if (!runId)
+      return;
+
+    const timer = setInterval(async () => {
+
+      const res = await axios.get(
+        `http://localhost:5072/api/execution/status/${runId}`
+      );
+
+      setStatus(res.data);
+
+      if (res.data.finished) {
+
+        clearInterval(timer);
+
+        setRunning(false);
+
+        navigate(`/executions/${runId}`, {
+          state: {
+            results: res.data.results
+          }
+        });
+
+      }
+
+    }, 1000);
+
+    return () => clearInterval(timer);
+
+  }, [runId]);
 
   const tagColor = (tag: string) => {
     switch (tag) {
@@ -63,34 +101,34 @@ export default function TestCases() {
     return s && tag;
   });
 
-  const smokeCount = data.filter(x=>x.tags.includes("Smoke")).length;
-  const regCount = data.filter(x=>x.tags.includes("Regression")).length;
+  const smokeCount = data.filter(x => x.tags.includes("Smoke")).length;
+  const regCount = data.filter(x => x.tags.includes("Regression")).length;
 
   const columns: ColumnsType<TestCase> = [
-    { title:"Test ID", dataIndex:"className", width:140 },
-    { title:"Test Name", dataIndex:"methodName" },
+    { title: "Test ID", dataIndex: "className", width: 140 },
+    { title: "Test Name", dataIndex: "methodName" },
     {
-      title:"Tags",
-      dataIndex:"tags",
-      render:(tags:string[])=>(
+      title: "Tags",
+      dataIndex: "tags",
+      render: (tags: string[]) => (
         <>
-          {tags.map(t=><Tag color={tagColor(t)} key={t}>{t}</Tag>)}
+          {tags.map(t => <Tag color={tagColor(t)} key={t}>{t}</Tag>)}
         </>
       )
     }
   ];
 
-  const createSuite = async()=>{
-    const tests:SuiteTest[]=data
-      .filter(x=>selectedRowKeys.includes(x.className))
-      .map(x=>({
-        className:x.className,
-        displayName:x.methodName,
-        executionName:x.methodName.replace(/\s+/g,"_")
+  const createSuite = async () => {
+    const tests: SuiteTest[] = data
+      .filter(x => selectedRowKeys.includes(x.className))
+      .map(x => ({
+        className: x.className,
+        displayName: x.methodName,
+        executionName: x.methodName.replace(/\s+/g, "_")
       }));
 
-    await axios.post("http://localhost:5072/api/suite",{
-      name:suiteName,
+    await axios.post("http://localhost:5072/api/suite", {
+      name: suiteName,
       tests
     });
 
@@ -110,32 +148,33 @@ export default function TestCases() {
     //     }));
 
     const selectedTests: SuiteTest[] =
-    selectedRowKeys.map((key, index) => {
+      selectedRowKeys.map((key, index) => {
 
         const t = data.find(x => x.className === key)!;
 
         return {
-            order: index + 1,
-            className: t.className,
-            displayName: t.methodName,
-            executionName: t.methodName.replace(/\s+/g, "_")
+          order: index + 1,
+          className: t.className,
+          displayName: t.methodName,
+          executionName: t.methodName.replace(/\s+/g, "_")
         };
 
-    });
+      });
 
     const res = await axios.post(
       "http://localhost:5072/api/execution/run",
       {
-          suiteName: "Ad Hoc Run",
-          tests: selectedTests
+        suiteName: "Ad Hoc Run",
+        tests: selectedTests
       }
     );
 
-    navigate(`/executions/${res.data.runId}`);
-};
+    setRunId(res.data.runId);
+    setRunning(true);
+  };
 
   return (
-    <div style={{padding:24}}>
+    <div style={{ padding: 24 }}>
       <div
         style={{
           display: "flex",
@@ -146,37 +185,86 @@ export default function TestCases() {
         <h2>Test Case Library</h2>
       </div>
 
-      <Row gutter={16} style={{marginBottom:20}}>
-        <Col span={6}><Card><Statistic title="Total Tests" value={data.length}/></Card></Col>
-        <Col span={6}><Card><Statistic title="Selected" value={selectedRowKeys.length}/></Card></Col>
-        <Col span={6}><Card><Statistic title="Smoke" value={smokeCount}/></Card></Col>
-        <Col span={6}><Card><Statistic title="Regression" value={regCount}/></Card></Col>
+      <Row gutter={16} style={{ marginBottom: 20 }}>
+        <Col span={6}><Card><Statistic title="Total Tests" value={data.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title="Selected" value={selectedRowKeys.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title="Smoke" value={smokeCount} /></Card></Col>
+        <Col span={6}><Card><Statistic title="Regression" value={regCount} /></Card></Col>
       </Row>
 
-      <Card style={{marginBottom:20}}>
-        <Space wrap style={{width:"100%",justifyContent:"space-between"}}>
+      {
+        running && status && (
+
+          <Card style={{ marginBottom: 20 }}>
+
+            <h3>Executing Selected Tests</h3>
+
+            <Progress
+              percent={
+                Math.round(
+                  status.completedTests /
+                  status.totalTests * 100
+                )
+              }
+            />
+
+            <Space style={{ marginTop: 15 }}>
+
+              <Spin spinning={running} />
+
+              <Tag
+                color={
+                  status.finished
+                    ? "success"
+                    : "processing"
+                }
+              >
+                {
+                  status.finished
+                    ? "Completed"
+                    : "Running"
+                }
+              </Tag>
+
+            </Space>
+
+            <div style={{ marginTop: 15 }}>
+              <b>Current Test:</b> {status.currentTest}
+            </div>
+
+            <div style={{ marginTop: 8 }}>
+              {status.completedTests} / {status.totalTests} Completed
+            </div>
+
+          </Card>
+
+        )
+      }
+
+      <Card style={{ marginBottom: 20 }}>
+        <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
           <Space wrap>
             <Input
               placeholder="Search..."
               value={searchText}
-              onChange={e=>setSearchText(e.target.value)}
-              style={{width:260}}
+              onChange={e => setSearchText(e.target.value)}
+              style={{ width: 260 }}
             />
             <Select
               mode="multiple"
               allowClear
               placeholder="Filter Tags"
-              style={{width:320}}
+              style={{ width: 320 }}
               value={selectedTags}
               onChange={setSelectedTags}
-              options={allTags.map(t=>({label:t,value:t}))}
+              options={allTags.map(t => ({ label: t, value: t }))}
             />
           </Space>
           <Space wrap>
             <Button
               type="primary"
-              disabled={selectedRowKeys.length===0}
-              onClick={()=>setIsModalOpen(true)}
+              disabled={selectedRowKeys.length === 0}
+              onClick={() => setIsModalOpen(true)}
             >
               Create Suite ({selectedRowKeys.length})
             </Button>
@@ -186,7 +274,7 @@ export default function TestCases() {
               disabled={selectedRowKeys.length === 0}
               onClick={handleRunSelected}
             >
-                ▶ Run Selected
+              ▶ Run Selected
             </Button>
           </Space>
         </Space>
@@ -199,24 +287,24 @@ export default function TestCases() {
         dataSource={filteredData}
         rowSelection={{
           selectedRowKeys,
-          onChange:setSelectedRowKeys
+          onChange: setSelectedRowKeys
         }}
       />
 
       <Modal
         title="Create Test Suite"
         open={isModalOpen}
-        onCancel={()=>setIsModalOpen(false)}
+        onCancel={() => setIsModalOpen(false)}
         onOk={createSuite}
         okText="Create Suite"
       >
         <Input
           value={suiteName}
-          onChange={e=>setSuiteName(e.target.value)}
+          onChange={e => setSuiteName(e.target.value)}
           placeholder="Suite Name"
         />
 
-        <p style={{marginTop:20}}>
+        <p style={{ marginTop: 20 }}>
           <b>{selectedRowKeys.length}</b> test(s) selected.
         </p>
       </Modal>

@@ -10,6 +10,7 @@ namespace Automation.Components
     {
         private readonly AutomationElement _root;
         private readonly UIAssistant _assistant;
+        private readonly AutomationElement _window;
 
         public SitePane(AutomationElement root, UIAssistant assistant)
         {
@@ -112,6 +113,33 @@ namespace Automation.Components
             EnterSiteCount(siteCount);
             ClickConfirm();
             //ValidateGallerySites(siteCount);
+        }
+
+        public void EnterInvalidSiteCount(string invalidInput)
+        {
+            var txtSite = GetSiteTextBox();
+
+            txtSite.Focus();
+        }
+
+        public void ChangeSiteInvalid(string invalidInput)
+        {
+            EnterInvalidSiteCount(invalidInput);
+            ClickConfirm();
+            //ValidateGallerySites(siteCount);
+        }
+
+        public bool VerifyValidationSuccessLog(string expectedText)
+        {
+            var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
+            var panel = _assistant.FindByAutomationId(logPanel, "panel");
+            var logList = _assistant.FindByAutomationId(panel, "logListView");
+
+            var logs = logList.FindAllDescendants();
+
+            return logs.Any(x =>
+                !string.IsNullOrEmpty(x.Name) &&
+                x.Name.Contains(expectedText));
         }
     }
 }
