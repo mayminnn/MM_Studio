@@ -6,6 +6,7 @@ builder.Services.AddSingleton<SuiteService>();
 builder.Services.AddSingleton<ExecutionService>();
 builder.Services.AddSingleton<DashboardService>();
 builder.Services.AddSingleton<ResultService>();
+builder.Services.AddSingleton<ExecutionTracker>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

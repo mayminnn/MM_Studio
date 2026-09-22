@@ -18,11 +18,25 @@ namespace Automation.Core
             _cf = new ConditionFactory(new UIA3PropertyLibrary());
         }
 
-        public AutomationElement FindByAutomationId(AutomationElement parent, string automationId, int timeout = 10)
+        // public AutomationElement FindByAutomationId(AutomationElement parent, string automationId, int timeout = 10)
+        // {
+        //     return Retry.WhileNull(() =>
+        //     {
+        //         return parent.FindFirstDescendant(_cf.ByAutomationId(automationId));
+        //     }, TimeSpan.FromSeconds(timeout)).Result;
+        // }
+
+        public AutomationElement FindByAutomationId(AutomationElement parent, string automationId,
+    int timeout = 10)
         {
             return Retry.WhileNull(() =>
             {
-                return parent.FindFirstDescendant(_cf.ByAutomationId(automationId));
+                if (parent == null)
+                    return null;
+
+                return parent.FindFirstDescendant(
+                    _cf.ByAutomationId(automationId));
+
             }, TimeSpan.FromSeconds(timeout)).Result;
         }
 

@@ -8,6 +8,9 @@ import {
   message,
   Tag,
   Collapse,
+  Progress,
+  Spin,
+  Card
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
@@ -42,6 +45,9 @@ export default function TestSuites() {
   const [searchText, setSearchText] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [runResults, setRunResults] = useState<RunResult[]>([]);
+  const [running, setRunning] = useState(false);
+  const [runId, setRunId] = useState("");
+  const [status, setStatus] = useState<any>(null);
 
   const loadSuites = async () => {
     setLoading(true);
@@ -61,6 +67,60 @@ export default function TestSuites() {
     loadSuites();
   }, []);
 
+  useEffect(() => {
+
+    if (!runId)
+      return;
+
+    const timer = setInterval(async () => {
+
+      const res = await axios.get(
+
+        `http://localhost:5072/api/execution/status/${runId}`
+      );
+
+      console.log("Status:", res.data);
+
+      setStatus(res.data);
+
+      // if (res.data.finished) {
+
+      //   clearInterval(timer);
+
+      //   setRunning(false);
+
+      //   navigate("/results", {
+
+      //     state: {
+      //       results: res.data.results
+      //     }
+
+      //   });
+
+      // }
+
+      if (res.data.finished) {
+
+        setTimeout(() => {
+
+          navigate(`/executions/${runId}`, {
+
+            state: {
+              results: res.data.results
+            }
+
+          });
+
+        }, 1000);
+
+      }
+
+    }, 1000);
+
+    return () => clearInterval(timer);
+
+  }, [runId]);
+
   const deleteSuite = async (id: string) => {
     try {
       await axios.delete(`http://localhost:5072/api/suite/${id}`);
@@ -74,37 +134,78 @@ export default function TestSuites() {
     }
   };
 
+  // const runSelectedSuites = async () => {
+  //   try {
+  //     const selectedSuites = data.filter((s) =>
+  //       selectedRowKeys.includes(s.id)
+  //     );
+
+  //     let allResults: RunResult[] = [];
+
+  //     for (const suite of selectedSuites) {
+  //       const payload = {
+  //         suiteName: suite.name,
+  //         tests: suite.tests,
+  //       };
+
+  //       console.log("Running Suite:", payload);
+
+  //       const res = await axios.post(
+  //         "http://localhost:5072/api/execution/run",
+  //         payload
+  //       );
+
+  //       allResults = [...allResults, ...res.data];
+  //     }
+
+  //     setRunResults(allResults);
+
+  //     message.success("Execution completed");
+  //   } catch (err) {
+  //     console.error(err);
+  //     message.error("Execution failed");
+  //   }
+  // };
+
   const runSelectedSuites = async () => {
+
     try {
-      const selectedSuites = data.filter((s) =>
-        selectedRowKeys.includes(s.id)
+
+      const selectedSuites =
+        data.filter(s =>
+          selectedRowKeys.includes(s.id));
+
+      if (selectedSuites.length === 0)
+        return;
+
+      const suite = selectedSuites[0];
+
+      const payload = {
+
+        suiteName: suite.name,
+
+        tests: suite.tests
+      };
+
+      const res = await axios.post(
+
+        "http://localhost:5072/api/execution/run",
+
+        payload
       );
 
-      let allResults: RunResult[] = [];
+      setRunId(res.data.runId);
 
-      for (const suite of selectedSuites) {
-        const payload = {
-          suiteName: suite.name,
-          tests: suite.tests,
-        };
+      setRunning(true);
 
-        console.log("Running Suite:", payload);
-
-        const res = await axios.post(
-          "http://localhost:5072/api/execution/run",
-          payload
-        );
-
-        allResults = [...allResults, ...res.data];
-      }
-
-      setRunResults(allResults);
-
-      message.success("Execution completed");
-    } catch (err) {
-      console.error(err);
-      message.error("Execution failed");
     }
+
+    catch {
+
+      message.error("Execution failed");
+
+    }
+
   };
 
   const filteredData = data.filter((suite) =>
@@ -179,6 +280,94 @@ export default function TestSuites() {
         />
       </Space>
 
+      {
+        running && status && (
+
+          // <Card
+          //   style={{ marginBottom: 20 }}
+          // >
+
+          //   <h3>
+          //     Executing Suite
+          //   </h3>
+
+          //   <div style={{ marginBottom: 10 }}>
+
+          //     <b>Suite: </b>
+
+          //     {status.suiteName}
+
+          //   </div>
+
+          //   <Progress
+          //     percent={Math.round(
+          //       status.completedTests
+          //       /
+          //       status.totalTests
+          //       * 100
+          //     )}
+          //   />
+
+          //   <div style={{ marginTop: 10 }}>
+
+          //     <b>Current Test: </b>
+
+          //     {status.currentTest}
+
+          //   </div>
+
+          //   <div style={{ marginTop: 10 }}>
+
+          //     {status.completedTests}
+
+          //     /
+
+          //     {status.totalTests}
+
+          //     Completed
+
+          //   </div>
+
+          // </Card>
+
+          <Card style={{ marginBottom: 20 }}>
+
+
+            <h3>Executing Suite</h3>
+
+            <div style={{ marginBottom: 10 }}>
+              <b>Suite: </b> {status.suiteName}
+            </div>
+
+            <Progress
+              percent={Math.round(
+                status.completedTests /
+                status.totalTests * 100
+              )}
+            />
+            <Space style={{ marginTop: 15 }}>
+
+              <Spin spinning={running && !status.finished} />
+
+              <Tag color={status.finished ? "success" : "processing"}>
+                {status.finished ? "Completed" : "Running"}
+              </Tag>
+
+            </Space>
+
+            <div style={{ marginTop: 15 }}>
+              <b>Current Test: </b> {status.currentTest}
+            </div>
+
+            <div style={{ marginTop: 10 }}>
+              {status.completedTests} / {status.totalTests} Completed
+            </div>
+
+          </Card>
+
+        )
+      }
+
       <Table
         rowKey="id"
         loading={loading}
@@ -194,7 +383,7 @@ export default function TestSuites() {
         }}
       />
 
-      {runResults.length > 0 && (
+      {/* {runResults.length > 0 && (
         <>
           <h2 style={{ marginTop: 40 }}>Execution Results</h2>
 
@@ -253,7 +442,7 @@ export default function TestSuites() {
             />
           </Table>
         </>
-      )}
+      )} */}
     </div>
   );
 }

@@ -67,6 +67,8 @@ namespace Test_Cases.Project_Explorer.Channel_Maps
 
             _cmSheet.ClickSync();
 
+            Thread.Sleep(1000);
+
             int startColumnIndex = 'F' - 'A';
             int row = 4;
 
@@ -78,9 +80,18 @@ namespace Test_Cases.Project_Explorer.Channel_Maps
 
             _cmSheet.SelectCellByFormula(lastCell);
 
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             string actualValue = _cmSheet.GetSelectedCellValueByCopy();
+
+            Retry.WhileTrue(() =>
+            {
+                var value = _cmSheet.GetSelectedCellValueByCopy();
+                return string.IsNullOrWhiteSpace(value);
+            },
+            TimeSpan.FromSeconds(10));
+
+            Debug.WriteLine($"Last Cell: {lastCell}, Actual Value: {actualValue}, Expected Value: {lastIndex}");
 
             Assert.AreEqual(
                 lastIndex.ToString(),

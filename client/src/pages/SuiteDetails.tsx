@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Button, Table, message, Space } from "antd";
+import { Button, Table, message, Space, InputNumber } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 type SuiteTest = {
@@ -78,64 +78,36 @@ export default function SuiteDetails() {
     },
   };
 
-  const moveUp = async (index: number) => {
+  const moveToPosition = async (
+    oldOrder: number,
+    newOrder: number
+  ) => {
 
-    // if (index === 0)
-    if (!suite || index === 0)
+    if (!suite)
+      return;
+
+    if (newOrder < 1)
+      newOrder = 1;
+
+    if (newOrder > suite.tests.length)
+      newOrder = suite.tests.length;
+
+    if (oldOrder === newOrder)
       return;
 
     const updated = [...suite.tests];
 
-    [updated[index - 1], updated[index]] =
-      [updated[index], updated[index - 1]];
+    // Remove the item
+    const item = updated.splice(oldOrder - 1, 1)[0];
 
+    // Insert into new position
+    updated.splice(newOrder - 1, 0, item);
+
+    // Renumber everything
     updated.forEach((t, i) => {
       t.order = i + 1;
     });
 
-    // setSuite({
-    //     ...suite,
-    //     tests: updated
-    // });
-    const updatedSuite = {
-      ...suite,
-      tests: updated
-    };
-
-    setSuite(updatedSuite);
-
-    try {
-
-      await axios.put(
-        `http://localhost:5072/api/suite/${suite.id}`,
-        updatedSuite
-      );
-
-    }
-    catch {
-
-      message.error("Failed to save order");
-    }
-  };
-
-  const moveDown = async (index: number) => {
-
-    if (!suite || index === suite.tests.length - 1)
-      return;
-
-    const updated = [...suite.tests];
-
-    [updated[index], updated[index + 1]] =
-      [updated[index + 1], updated[index]];
-
-    updated.forEach((t, i) => {
-      t.order = i + 1;
-    });
-
-    // setSuite({
-    //     ...suite,
-    //     tests: updated
-    // });
     const updatedSuite = {
       ...suite,
       tests: updated
@@ -158,41 +130,151 @@ export default function SuiteDetails() {
     }
 
   };
+
+  // const moveUp = async (index: number) => {
+
+  //   // if (index === 0)
+  //   if (!suite || index === 0)
+  //     return;
+
+  //   const updated = [...suite.tests];
+
+  //   [updated[index - 1], updated[index]] =
+  //     [updated[index], updated[index - 1]];
+
+  //   updated.forEach((t, i) => {
+  //     t.order = i + 1;
+  //   });
+
+  //   // setSuite({
+  //   //     ...suite,
+  //   //     tests: updated
+  //   // });
+  //   const updatedSuite = {
+  //     ...suite,
+  //     tests: updated
+  //   };
+
+  //   setSuite(updatedSuite);
+
+  //   try {
+
+  //     await axios.put(
+  //       `http://localhost:5072/api/suite/${suite.id}`,
+  //       updatedSuite
+  //     );
+
+  //   }
+  //   catch {
+
+  //     message.error("Failed to save order");
+  //   }
+  // };
+
+  // const moveDown = async (index: number) => {
+
+  //   if (!suite || index === suite.tests.length - 1)
+  //     return;
+
+  //   const updated = [...suite.tests];
+
+  //   [updated[index], updated[index + 1]] =
+  //     [updated[index + 1], updated[index]];
+
+  //   updated.forEach((t, i) => {
+  //     t.order = i + 1;
+  //   });
+
+  //   // setSuite({
+  //   //     ...suite,
+  //   //     tests: updated
+  //   // });
+  //   const updatedSuite = {
+  //     ...suite,
+  //     tests: updated
+  //   };
+
+  //   setSuite(updatedSuite);
+
+  //   try {
+
+  //     await axios.put(
+  //       `http://localhost:5072/api/suite/${suite.id}`,
+  //       updatedSuite
+  //     );
+
+  //   }
+  //   catch {
+
+  //     message.error("Failed to save order");
+
+  //   }
+
+  // };
 
   // ----------------------------
   // Table columns
   // ----------------------------
   const columns: ColumnsType<SuiteTest> = [
     {
-      title: "#",
-      dataIndex: "order",
-      width: 60
-    },
-    {
-      title: "Move",
-      width: 100,
-      render: (_, record, index) => (
-        <>
-          <Button
-            size="small"
-            disabled={index === 0}
-            onClick={() => moveUp(index)}
-          >
-            ↑
-          </Button>
+      title: "Order",
+      width: 60,
 
-          <Button
-            size="small"
-            // disabled={index === suite.tests.length - 1}
-            disabled={index >= (suite?.tests.length ?? 0) - 1}
-            style={{ marginLeft: 5 }}
-            onClick={() => moveDown(index)}
-          >
-            ↓
-          </Button>
-        </>
+      render: (_, record) => (
+
+        <InputNumber
+          min={1}
+          max={suite?.tests.length ?? 1}
+          value={record.order}
+
+          onPressEnter={(e) => {
+
+            const value = Number(
+              (e.target as HTMLInputElement).value
+            );
+
+            moveToPosition(record.order, value);
+
+          }}
+
+          onBlur={(e) => {
+
+            const value = Number(
+              (e.target as HTMLInputElement).value
+            );
+
+            moveToPosition(record.order, value);
+
+          }}
+        />
+
       )
     },
+    // {
+    //   title: "Move",
+    //   width: 100,
+    //   render: (_, record, index) => (
+    //     <>
+    //       <Button
+    //         size="small"
+    //         disabled={index === 0}
+    //         onClick={() => moveUp(index)}
+    //       >
+    //         ↑
+    //       </Button>
+
+    //       <Button
+    //         size="small"
+    //         // disabled={index === suite.tests.length - 1}
+    //         disabled={index >= (suite?.tests.length ?? 0) - 1}
+    //         style={{ marginLeft: 5 }}
+    //         onClick={() => moveDown(index)}
+    //       >
+    //         ↓
+    //       </Button>
+    //     </>
+    //   )
+    // },
     {
       title: "Test ID",
       dataIndex: "className",

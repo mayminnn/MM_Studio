@@ -38,7 +38,7 @@ export default function ExecutionResult(){
 
                 <p>
 
-                    <b>Executed :</b>
+                    <b>Executed : </b>
 
                     {new Date(result.executedAt).toLocaleString()}
 

@@ -2,6 +2,8 @@
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
+using Automation.Models;
+using Automation.Parsers;
 using FlaUI.Core.Tools;
 using FlaUI.Core.WindowsAPI;
 using System;
@@ -16,6 +18,8 @@ namespace Automation.Components
     {
         private readonly AutomationElement _window;
         private readonly UIAssistant _assistant;
+        private static readonly Mutex ClipboardMutex =
+            new Mutex(false, "Global\\MM_Studio_ClipboardMutex");
 
         public DatalogClient(AutomationElement window, UIAssistant assistant)
         {
@@ -47,11 +51,11 @@ namespace Automation.Components
             if (dockSite == null)
                 throw new Exception("mainDocDockSite not found");
 
-            var dcWindow = _assistant.FindByAutomationId(dockSite, "DatalogClient");
+            var dcWindow = _assistant.FindByAutomationId(dockSite, "Datalog");
             if (dcWindow == null)
                 throw new Exception("DatalogClient window not found");
 
-            var dcPane = _assistant.FindByName(dcWindow, "DatalogClient");
+            var dcPane = _assistant.FindByAutomationId(dcWindow, "DatalogClientUserControl");
             if (dcPane == null)
                 throw new Exception("DatalogClient pane not found");
 
@@ -69,70 +73,114 @@ namespace Automation.Components
             if (datalog == null)
                 throw new Exception("Datalog window not found.");
 
-            datalog.Focus();
-            Thread.Sleep(200);
+            Console.WriteLine("Datalog control found.");
+            Console.WriteLine($"Name: {datalog.Name}");
+            Console.WriteLine($"AutomationId: {datalog.AutomationId}");
+            Console.WriteLine($"ControlType: {datalog.ControlType}");
 
-            Keyboard.TypeSimultaneously(
-                VirtualKeyShort.CONTROL,
-                VirtualKeyShort.KEY_A);
+            // Only one test's copy/paste-cycle runs at a time,
+            // across all parallel MSTest threads.
+            ClipboardMutex.WaitOne();
+            try
+            {
+                datalog.Focus();
+                Thread.Sleep(500);
 
-            Thread.Sleep(100);
+                Mouse.Click(datalog.BoundingRectangle.Center());
+                Thread.Sleep(500);
 
-            Keyboard.TypeSimultaneously(
-                VirtualKeyShort.CONTROL,
-                VirtualKeyShort.KEY_C);
+                Keyboard.Press(VirtualKeyShort.CONTROL);
+                Keyboard.Press(VirtualKeyShort.KEY_A);
+                Keyboard.Release(VirtualKeyShort.KEY_A);
+                Keyboard.Release(VirtualKeyShort.CONTROL);
+                Thread.Sleep(500);
 
-            Thread.Sleep(300);
+                Keyboard.Press(VirtualKeyShort.CONTROL);
+                Keyboard.Press(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.CONTROL);
+                Thread.Sleep(1000);
 
-            string content = System.Windows.Forms.Clipboard.GetText();
+                string content = GetClipboardTextSTA();
 
-            System.Diagnostics.Debug.WriteLine(content);
+                Console.WriteLine($"Clipboard length: {content?.Length ?? 0}");
 
-            return content;
+                return content;
+            }
+            finally
+            {
+                ClipboardMutex.ReleaseMutex();
+            }
         }
 
-        public class TestResult
+        public DatalogResult CaptureAndSave(
+    string projectName,
+    string version,
+    string testName)
         {
-            public string Name { get; set; }
+            string rawText = GetDCResults();
 
-            public string Flow { get; set; }
+            if (string.IsNullOrWhiteSpace(rawText))
+                throw new Exception("Datalog is empty; nothing to save.");
 
-            public double LowLimit { get; set; }
+            var parser = new DatalogParser();
+            DatalogResult result = parser.Parse(rawText);
 
-            public double HighLimit { get; set; }
+            DatalogStorage.Save(projectName, version, testName, result, rawText);
 
-            public string Unit { get; set; }
-
-            public List<double> SiteValues { get; set; }
-                = new List<double>();
+            return result;
         }
 
-        public class FlowResult
+        // Clipboard.GetText() requires an STA thread. MSTest's
+        // [Parallelize] runs test methods on MTA thread-pool threads,
+        // so we hop onto a dedicated STA thread just for the read.
+        private static string GetClipboardTextSTA()
         {
-            public string Name { get; set; }
+            string result = null;
+            Exception error = null;
 
-            public List<TestResult> Tests { get; set; }
-                = new List<TestResult>();
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    Retry.WhileTrue(() =>
+                    {
+                        result = Clipboard.GetText();
+                        return string.IsNullOrEmpty(result);
+                    }, TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(200));
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            if (error != null)
+                throw error;
+
+            return result;
         }
 
-        public class FinalSummary
+        public DatalogResult GetParsedResults()
         {
-            public List<string> Status { get; set; }
+            string text = GetDCResults();
 
-            public List<int> HardBin { get; set; }
+            System.Diagnostics.Debug.WriteLine("");
+            System.Diagnostics.Debug.WriteLine("========== RAW DATALOG ==========");
+            System.Diagnostics.Debug.WriteLine(
+                string.IsNullOrEmpty(text) ? "[EMPTY]" : text);
+            System.Diagnostics.Debug.WriteLine("========== END RAW DATALOG ==========");
 
-            public List<int> SoftBin { get; set; }
+            if (string.IsNullOrWhiteSpace(text))
+                throw new Exception("Datalog is empty.");
 
-            public List<string> BinName { get; set; }
-        }
+            var parser = new DatalogParser();
 
-        public class DatalogResult
-        {
-            public List<FlowResult> Flows
-                = new List<FlowResult>();
-
-            public FinalSummary Summary
-                = new FinalSummary();
+            return parser.Parse(text);
         }
     }
 }
