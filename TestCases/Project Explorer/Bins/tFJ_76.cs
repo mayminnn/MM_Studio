@@ -47,9 +47,9 @@ namespace Test_Cases.Project_Explorer.Bins
 
             binSheet.ConfigureBinRow(
                 7,
-                "28",
+                "1",
                 "PASS_BIN",
-                "1998",
+                "11",
                 "Pass",
                 "Auto test");
 

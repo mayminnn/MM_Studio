@@ -1,7 +1,10 @@
 ﻿using Automation.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using System;
+using System.Diagnostics;
+using FlaUI.Core.Input;
+using FlaUI.Core.WindowsAPI;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Automation.Components
@@ -10,7 +13,6 @@ namespace Automation.Components
     {
         private readonly AutomationElement _root;
         private readonly UIAssistant _assistant;
-        private readonly AutomationElement _window;
 
         public SitePane(AutomationElement root, UIAssistant assistant)
         {
@@ -119,7 +121,18 @@ namespace Automation.Components
         {
             var txtSite = GetSiteTextBox();
 
+            // txtSite.Focus();
+            // txtSite.Text = invalidInput;
+
             txtSite.Focus();
+            txtSite.Text = invalidInput;
+
+            Keyboard.Press(VirtualKeyShort.TAB);
+            Keyboard.Release(VirtualKeyShort.TAB);
+
+            Thread.Sleep(500);
+
+            ClickConfirm();
         }
 
         public void ChangeSiteInvalid(string invalidInput)
@@ -131,7 +144,11 @@ namespace Automation.Components
 
         public bool VerifyValidationSuccessLog(string expectedText)
         {
-            var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
+
+            var pnlxPage = _assistant.FindByAutomationId(_root, "pnlxPage");
+            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
+            var dockSite = _assistant.FindByAutomationId(designUC, "mainBottomDockSite");
+            var logPanel = _assistant.FindByAutomationId(dockSite, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
             var logList = _assistant.FindByAutomationId(panel, "logListView");
 

@@ -16,13 +16,16 @@ namespace TestOps.API.Controllers
         // }
         private readonly ExecutionService _service;
         private readonly ExecutionTracker _tracker;
+        private readonly SuiteService _suiteService;
 
         public ExecutionController(
             ExecutionService service,
-            ExecutionTracker tracker)
+            ExecutionTracker tracker,
+            SuiteService suiteService)
         {
             _service = service;
             _tracker = tracker;
+            _suiteService = suiteService;
         }
 
         // [HttpPost("run")]
@@ -78,6 +81,25 @@ namespace TestOps.API.Controllers
                 return NotFound();
 
             return Ok(status);
+        }
+
+        [HttpPost("runSuite/{suiteId}")]
+        public async Task<IActionResult> RunSuite(string suiteId)
+        {
+            var suite = _suiteService.GetById(suiteId);
+
+            if (suite == null)
+                return NotFound();
+
+            var runId = Guid.NewGuid();
+
+            var result = await _service.RunSuiteAsync(
+                runId,
+                suite.Name,
+                suite.Tests
+            );
+
+            return Ok(result);
         }
     }
 }

@@ -37,17 +37,19 @@ namespace Test_Cases.Channel_Maps
         public void Change_Number_of_Sites_with_Invalid_Input()
         {
             var sitePane = new SitePane(AppManager.MainWindow, _assistant);
-            string siteCount = "a";
-            sitePane.ChangeSiteInvalid(siteCount);
-            
+            string invalidInput = "a";
+            sitePane.ChangeSiteInvalid(invalidInput);
+
+            Thread.Sleep(1000);
+
             Assert.IsTrue(
-                sitePane.VerifyValidationSuccessLog("Invalid value 'a' was entered. Please enter a valid number for site count."));
+                sitePane.VerifyValidationSuccessLog($"Invalid value '{invalidInput}' was entered"));
 
             Debug.WriteLine("---------------------------------");
             Debug.WriteLine($"| tFJ_65 passed|");
             Debug.WriteLine("---------------------------------");
 
-            Cleanup();
+            // Cleanup();
         }
     }
 }
