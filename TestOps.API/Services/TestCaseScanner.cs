@@ -30,25 +30,12 @@ public static class TestCaseScanner
 
             string className = classMatch.Groups[1].Value;
             
-            List<string> tags = new();
+            List<string> tags = ReadAttributeStrings(text, "TestTags");
 
-            var tagAttribute = Regex.Match(
-                text,
-                @"\[TestTags[^\]]*\]",
-                RegexOptions.Singleline);
+            List<string> testLinkIds = ReadAttributeStrings(text, "TestLinkIds");
 
-            if (tagAttribute.Success)
-            {
-                tags = Regex.Matches(
-                            tagAttribute.Value,
-                            "\"([^\"]+)\"")
-                        .Cast<Match>()
-                        .Select(m => m.Groups[1].Value)
-                        .ToList();
-            }
-
-            // Rule #1 & #2
-            if (!className.StartsWith("tFJ_"))
+            // Rule #1 & #2: only classes that declare [TestLinkIds] are listed
+            if (testLinkIds.Count == 0)
                 continue;
 
             var methodMatches = Regex.Matches(
@@ -70,12 +57,32 @@ public static class TestCaseScanner
             {
                 ClassName = className,
                 MethodName = firstMethod,
-                Tags = tags
+                Tags = tags,
+                TestLinkIds = testLinkIds
             });
         }
 
         return results
             .OrderBy(x => x.ClassName)
             .ToList();
+    }
+
+    // Returns the quoted string arguments of [attributeName(...)], or an empty list
+    private static List<string> ReadAttributeStrings(string text, string attributeName)
+    {
+        var attribute = Regex.Match(
+            text,
+            $@"\[{attributeName}\b[^\]]*\]",
+            RegexOptions.Singleline);
+
+        if (!attribute.Success)
+            return new List<string>();
+
+        return Regex.Matches(
+                    attribute.Value,
+                    "\"([^\"]+)\"")
+                .Cast<Match>()
+                .Select(m => m.Groups[1].Value)
+                .ToList();
     }
 }

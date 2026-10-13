@@ -15,6 +15,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RunConfigModal, { type RunConfig } from "../components/RunConfigModal";
 
 type SuiteTest = {
   className: string;
@@ -48,6 +49,8 @@ export default function TestSuites() {
   const [running, setRunning] = useState(false);
   const [runId, setRunId] = useState("");
   const [status, setStatus] = useState<any>(null);
+  const [stopping, setStopping] = useState(false);
+  const [runModalOpen, setRunModalOpen] = useState(false);
 
   const loadSuites = async () => {
     setLoading(true);
@@ -167,7 +170,9 @@ export default function TestSuites() {
   //   }
   // };
 
-  const runSelectedSuites = async () => {
+  const runSelectedSuites = async (config: RunConfig) => {
+
+    setRunModalOpen(false);
 
     try {
 
@@ -183,6 +188,12 @@ export default function TestSuites() {
       const payload = {
 
         suiteName: suite.name,
+
+        projectName: config.projectName,
+
+        version: config.version,
+
+        installerVersion: config.installerVersion,
 
         tests: suite.tests
       };
@@ -203,6 +214,35 @@ export default function TestSuites() {
     catch {
 
       message.error("Execution failed");
+
+    }
+
+  };
+
+  const stopRun = async () => {
+
+    if (!runId)
+      return;
+
+    setStopping(true);
+
+    try {
+
+      await axios.post(
+        `http://localhost:5072/api/execution/stop/${runId}`
+      );
+
+      message.info("Stopping run...");
+
+    }
+
+    catch (err: any) {
+
+      // 409 = run already finished on the backend
+      if (err?.response?.status !== 409)
+        message.error("Failed to stop run");
+
+      setStopping(false);
 
     }
 
@@ -265,7 +305,7 @@ export default function TestSuites() {
         <Button
           type="primary"
           disabled={selectedRowKeys.length === 0}
-          onClick={runSelectedSuites}
+          onClick={() => setRunModalOpen(true)}
         >
           Run Selected ({selectedRowKeys.length})
         </Button>
@@ -339,6 +379,10 @@ export default function TestSuites() {
               <b>Suite: </b> {status.suiteName}
             </div>
 
+            <div style={{ marginBottom: 10 }}>
+              <b>Project: </b> {status.projectName || "-"} &nbsp; <b>Version: </b> {status.version || "-"} &nbsp; <b>Installer: </b> {status.installerVersion || "-"}
+            </div>
+
             <Progress
               percent={Math.round(
                 status.completedTests /
@@ -349,9 +393,37 @@ export default function TestSuites() {
 
               <Spin spinning={running && !status.finished} />
 
-              <Tag color={status.finished ? "success" : "processing"}>
-                {status.finished ? "Completed" : "Running"}
+              <Tag
+                color={
+                  status.stopped
+                    ? "error"
+                    : status.finished
+                      ? "success"
+                      : stopping ? "warning" : "processing"
+                }
+              >
+                {
+                  status.stopped
+                    ? "Stopped"
+                    : status.finished
+                      ? "Completed"
+                      : stopping ? "Stopping" : "Running"
+                }
               </Tag>
+
+              {!status.finished && (
+                <Popconfirm
+                  title="Stop this run?"
+                  description="The current test will be terminated and remaining tests skipped."
+                  okText="Stop"
+                  okButtonProps={{ danger: true }}
+                  onConfirm={stopRun}
+                >
+                  <Button danger loading={stopping}>
+                    ■ Stop Run
+                  </Button>
+                </Popconfirm>
+              )}
 
             </Space>
 
@@ -367,6 +439,13 @@ export default function TestSuites() {
 
         )
       }
+
+      <RunConfigModal
+        open={runModalOpen}
+        testCount={data.find(s => selectedRowKeys.includes(s.id))?.tests.length ?? 0}
+        onCancel={() => setRunModalOpen(false)}
+        onRun={runSelectedSuites}
+      />
 
       <Table
         rowKey="id"

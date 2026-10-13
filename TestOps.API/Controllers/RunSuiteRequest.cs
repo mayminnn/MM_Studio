@@ -12,6 +12,13 @@ namespace TestOps.API.Models
     {
         public string SuiteName { get; set; } = "";
 
+        // Project under test; blank falls back to the TestCases defaults
+        public string ProjectName { get; set; } = "";
+
+        public string Version { get; set; } = "";
+
+        public string InstallerVersion { get; set; } = "";
+
         public List<SuiteTest> Tests { get; set; } = new();
     }
 }

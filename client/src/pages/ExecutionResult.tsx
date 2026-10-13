@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, Tag } from "antd";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { statusColor } from "../utils/resultStatus";
 
 export default function ExecutionResult(){
 
@@ -30,7 +31,7 @@ export default function ExecutionResult(){
 
                     <b>Status :</b>
 
-                    <Tag color={result.status==="Passed"?"green":"red"}>
+                    <Tag color={statusColor(result.status)}>
                         {result.status}
                     </Tag>
 
@@ -40,7 +41,9 @@ export default function ExecutionResult(){
 
                     <b>Executed : </b>
 
-                    {new Date(result.executedAt).toLocaleString()}
+                    {result.status==="Not Run"
+                        ? "-"
+                        : new Date(result.executedAt).toLocaleString()}
 
                 </p>
 

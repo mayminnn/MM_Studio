@@ -63,7 +63,10 @@ namespace TestOps.API.Controllers
                 await _service.RunSuiteAsync(
                     runId,
                     request.SuiteName,
-                    request.Tests);
+                    request.Tests,
+                    request.ProjectName,
+                    request.Version,
+                    request.InstallerVersion);
             });
 
             return Ok(new
@@ -81,6 +84,22 @@ namespace TestOps.API.Controllers
                 return NotFound();
 
             return Ok(status);
+        }
+
+        [HttpPost("stop/{runId}")]
+        public IActionResult Stop(Guid runId)
+        {
+            if (_tracker.Get(runId) == null)
+                return NotFound();
+
+            if (!_service.Stop(runId))
+                return Conflict("Run has already finished.");
+
+            return Ok(new
+            {
+                RunId = runId,
+                Stopping = true
+            });
         }
 
         [HttpPost("runSuite/{suiteId}")]

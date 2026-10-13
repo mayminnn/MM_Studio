@@ -12,10 +12,9 @@ namespace Test_Cases.Login
         protected AppManager AppManager;
         protected LoginPage LoginPage;
         protected PSPage MainPage;
-        protected virtual string ProjectName => "OX01G10";
-        protected virtual string Version => "v1";
-        // protected virtual string ProjectName => "MM_TEST";
-        // protected virtual string Version => "2524";
+        // Set from the TestOps run dialog; see TestSettings for the defaults
+        protected virtual string ProjectName => TestSettings.ProjectName;
+        protected virtual string Version => TestSettings.Version;
         protected virtual bool AutoLogin => true;
         
         [TestInitialize]
