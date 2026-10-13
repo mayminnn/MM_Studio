@@ -7,11 +7,13 @@ import type { ColumnsType } from "antd/es/table";
 import { getTestCases } from "../services/testcaseService";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RunConfigModal, { type RunConfig } from "../components/RunConfigModal";
 
 type TestCase = {
   className: string;
   methodName: string;
   tags: string[];
+  testLinkIds: string[];
 };
 
 type SuiteTest = {
@@ -33,6 +35,7 @@ export default function TestCases() {
   const [running, setRunning] = useState(false);
   const [runId, setRunId] = useState("");
   const [status, setStatus] = useState<any>(null);
+  const [runModalOpen, setRunModalOpen] = useState(false);
 
   useEffect(() => {
     getTestCases().then(setData).finally(() => setLoading(false));
@@ -94,12 +97,19 @@ export default function TestCases() {
   );
 
   const filteredData = data.filter(t => {
-    const s = `${t.className} ${t.methodName}`.toLowerCase()
+    const s = `${t.className} ${t.methodName} ${(t.testLinkIds ?? []).join(" ")}`.toLowerCase()
       .includes(searchText.toLowerCase());
     const tag = selectedTags.length === 0 ||
       selectedTags.every(x => t.tags.includes(x));
     return s && tag;
   });
+
+  const testLinkIdCount = useMemo(
+    () => new Set(
+      data.flatMap(x => x.testLinkIds ?? []).map(id => id.trim().toLowerCase())
+    ).size,
+    [data]
+  );
 
   const smokeCount = data.filter(x => x.tags.includes("Smoke")).length;
   const regCount = data.filter(x => x.tags.includes("Regression")).length;
@@ -107,6 +117,16 @@ export default function TestCases() {
   const columns: ColumnsType<TestCase> = [
     { title: "Test ID", dataIndex: "className", width: 140 },
     { title: "Test Name", dataIndex: "methodName" },
+    {
+      title: "TestLink IDs",
+      dataIndex: "testLinkIds",
+      width: 220,
+      render: (ids: string[] = []) => (
+        <>
+          {ids.map(id => <Tag key={id}>{id}</Tag>)}
+        </>
+      )
+    },
     {
       title: "Tags",
       dataIndex: "tags",
@@ -137,7 +157,9 @@ export default function TestCases() {
     navigate("/testsuites");
   };
 
-  const handleRunSelected = async () => {
+  const handleRunSelected = async (config: RunConfig) => {
+
+    setRunModalOpen(false);
 
     // const selectedTests = data
     //     .filter(t => selectedRowKeys.includes(t.className))
@@ -165,6 +187,9 @@ export default function TestCases() {
       "http://localhost:5072/api/execution/run",
       {
         suiteName: "Ad Hoc Run",
+        projectName: config.projectName,
+        version: config.version,
+        installerVersion: config.installerVersion,
         tests: selectedTests
       }
     );
@@ -186,7 +211,7 @@ export default function TestCases() {
       </div>
 
       <Row gutter={16} style={{ marginBottom: 20 }}>
-        <Col span={6}><Card><Statistic title="Total Tests" value={data.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title="Test Cases" value={testLinkIdCount} /></Card></Col>
         <Col span={6}><Card><Statistic title="Selected" value={selectedRowKeys.length} /></Card></Col>
         <Col span={6}><Card><Statistic title="Smoke" value={smokeCount} /></Card></Col>
         <Col span={6}><Card><Statistic title="Regression" value={regCount} /></Card></Col>
@@ -198,6 +223,10 @@ export default function TestCases() {
           <Card style={{ marginBottom: 20 }}>
 
             <h3>Executing Selected Tests</h3>
+
+            <div style={{ marginBottom: 10 }}>
+              <b>Project: </b> {status.projectName || "-"} &nbsp; <b>Version: </b> {status.version || "-"} &nbsp; <b>Installer: </b> {status.installerVersion || "-"}
+            </div>
 
             <Progress
               percent={
@@ -272,7 +301,7 @@ export default function TestCases() {
             <Button
               type="primary"
               disabled={selectedRowKeys.length === 0}
-              onClick={handleRunSelected}
+              onClick={() => setRunModalOpen(true)}
             >
               ▶ Run Selected
             </Button>
@@ -289,6 +318,13 @@ export default function TestCases() {
           selectedRowKeys,
           onChange: setSelectedRowKeys
         }}
+      />
+
+      <RunConfigModal
+        open={runModalOpen}
+        testCount={selectedRowKeys.length}
+        onCancel={() => setRunModalOpen(false)}
+        onRun={handleRunSelected}
       />
 
       <Modal

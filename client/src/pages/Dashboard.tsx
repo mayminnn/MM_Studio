@@ -53,7 +53,7 @@ export default function Dashboard() {
 <Card>
 <Statistic
 title="Test Cases"
-value={data.totalTests}
+value={data.totalTestLinkIds}
 prefix={<BugOutlined/>}
 />
 </Card>

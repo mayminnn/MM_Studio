@@ -5,6 +5,9 @@ namespace TestOps.API.Models
         public Guid Id { get; set; }
         public Guid RunId { get; set; }
         public string SuiteName { get; set; } = "";
+        public string ProjectName { get; set; } = "";
+        public string Version { get; set; } = "";
+        public string InstallerVersion { get; set; } = "";
         public string ClassName { get; set; } = "";
         public string DisplayName { get; set; } = "";
         public string Status { get; set; } = "";

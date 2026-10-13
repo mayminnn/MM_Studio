@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Table, Tag } from "antd";
+import { Descriptions, Table, Tag } from "antd";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { statusColor } from "../utils/resultStatus";
 
 type Result = {
     id: string;
@@ -9,6 +10,10 @@ type Result = {
     className: string;
     status: string;
     executedAt: string;
+    suiteName: string;
+    projectName?: string;
+    version?: string;
+    installerVersion?: string;
 };
 
 export default function ExecutionDetail() {
@@ -33,6 +38,22 @@ export default function ExecutionDetail() {
 
             <h2>Execution Details</h2>
 
+            {results.length > 0 && (
+                <Descriptions
+                    bordered
+                    size="small"
+                    column={4}
+                    style={{ marginBottom: 16 }}
+                    items={[
+                        { key: "suite", label: "Suite", children: results[0].suiteName || "-" },
+                        // Blank for runs recorded before project/version were captured
+                        { key: "project", label: "Project", children: results[0].projectName || "-" },
+                        { key: "version", label: "Version", children: results[0].version || "-" },
+                        { key: "installer", label: "Installer Version", children: results[0].installerVersion || "-" },
+                    ]}
+                />
+            )}
+
             <Table
                 rowKey="id"
                 dataSource={results}
@@ -52,7 +73,7 @@ export default function ExecutionDetail() {
                     title="Status"
                     render={(_,r:any)=>
 
-                        <Tag color={r.status==="Passed"?"green":"red"}>
+                        <Tag color={statusColor(r.status)}>
                             {r.status}
                         </Tag>
 
@@ -63,7 +84,9 @@ export default function ExecutionDetail() {
                     title="Executed"
                     render={(_,r:any)=>
 
-                        new Date(r.executedAt).toLocaleString()
+                        r.status==="Not Run"
+                            ? "-"
+                            : new Date(r.executedAt).toLocaleString()
 
                     }
                 />

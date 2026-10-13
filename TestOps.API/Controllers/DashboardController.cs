@@ -9,13 +9,16 @@ public class DashboardController : ControllerBase
 {
     private readonly ResultService _resultService;
     private readonly SuiteService _suiteService;
+    private readonly IConfiguration _config;
 
     public DashboardController(
         ResultService resultService,
-        SuiteService suiteService)
+        SuiteService suiteService,
+        IConfiguration config)
     {
         _resultService = resultService;
         _suiteService = suiteService;
+        _config = config;
     }
 
     [HttpGet]
@@ -26,6 +29,18 @@ public class DashboardController : ControllerBase
 
         var totalTests =
             suites.Sum(x => x.Tests.Count);
+
+        // Unique TestLink IDs covered by all automated test classes
+        var testCasePath = _config["TestCasePath"];
+
+        var totalTestLinkIds =
+            string.IsNullOrWhiteSpace(testCasePath)
+                ? 0
+                : TestCaseScanner.Scan(testCasePath)
+                    .SelectMany(x => x.TestLinkIds)
+                    .Select(x => x.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
 
         var totalExecutions =
             results.Select(x => x.RunId)
@@ -39,10 +54,10 @@ public class DashboardController : ControllerBase
             results.Count(x => x.Status == "Failed");
 
         var passRate =
-            results.Count == 0
+            passed + failed == 0
                 ? 0
                 : Math.Round(
-                    passed * 100.0 / results.Count,
+                    passed * 100.0 / (passed + failed),
                     1);
 
         var recentExecutions =
@@ -74,6 +89,7 @@ public class DashboardController : ControllerBase
         return Ok(new
         {
             totalTests,
+            totalTestLinkIds,
             totalSuites = suites.Count,
             totalExecutions,
             passed,

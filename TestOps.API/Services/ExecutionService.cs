@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using TestOps.API.Models;
 
@@ -15,6 +16,9 @@ namespace TestOps.API.Services
         private readonly ResultService _resultService;
         private readonly ExecutionTracker _tracker;
 
+        // Cancellation handle for each run that is still in progress
+        private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _activeRuns = new();
+
         public ExecutionService(
             ResultService resultService,
             ExecutionTracker tracker)
@@ -23,7 +27,13 @@ namespace TestOps.API.Services
             _tracker = tracker;
         }
 
-        public async Task<RunExecutionResponse> RunSuiteAsync(Guid runId, string suiteName, List<SuiteTest> tests)
+        public async Task<RunExecutionResponse> RunSuiteAsync(
+            Guid runId,
+            string suiteName,
+            List<SuiteTest> tests,
+            string projectName = "",
+            string version = "",
+            string installerVersion = "")
         {
             var results = new List<object>();
             // var runId = Guid.NewGuid();
@@ -31,6 +41,9 @@ namespace TestOps.API.Services
             {
                 RunId = runId,
                 SuiteName = suiteName,
+                ProjectName = projectName?.Trim() ?? "",
+                Version = version?.Trim() ?? "",
+                InstallerVersion = installerVersion?.Trim() ?? "",
                 TotalTests = tests.Count,
                 CompletedTests = 0,
                 Finished = false
@@ -38,103 +51,164 @@ namespace TestOps.API.Services
 
             _tracker.Add(status);
 
-            string runnerPath =
-                @"..\TestRunner\bin\Debug\net48\TestRunner.exe";
+            using var cts = new CancellationTokenSource();
+            _activeRuns[runId] = cts;
 
-            if (!File.Exists(runnerPath))
-                throw new Exception($"TestRunner not found:\n{runnerPath}");
-
-            // foreach (var test in tests)
-            foreach (var test in tests.OrderBy(x => x.Order))
+            try
             {
-                status.CurrentTest = test.DisplayName;
-                _tracker.Update(status);
+                string runnerPath =
+                    @"..\TestRunner\bin\Debug\net48\TestRunner.exe";
 
-                var psi = new ProcessStartInfo
+                if (!File.Exists(runnerPath))
+                    throw new Exception($"TestRunner not found:\n{runnerPath}");
+
+                var orderedTests = tests.OrderBy(x => x.Order).ToList();
+                int processed = 0;
+
+                // foreach (var test in tests)
+                foreach (var test in orderedTests)
                 {
-                    FileName = runnerPath,
+                    if (cts.IsCancellationRequested)
+                        break;
 
-                    // TestRunner.exe tFJ_09 Login_As_Admin
-                    Arguments = $"{test.ClassName} {test.ExecutionName}",
+                    status.CurrentTest = test.DisplayName;
+                    _tracker.Update(status);
 
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = runnerPath,
 
-                using var process = Process.Start(psi);
+                        // TestRunner.exe A09 Login_As_Admin
+                        Arguments = $"{test.ClassName} {test.ExecutionName}",
 
-                if (process == null)
-                    throw new Exception("Unable to start TestRunner.");
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    };
 
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
+                    // Read by TestCases' TestSettings
+                    if (!string.IsNullOrEmpty(status.ProjectName))
+                        psi.Environment["MM_STUDIO_PROJECT"] = status.ProjectName;
 
-                await process.WaitForExitAsync();
+                    if (!string.IsNullOrEmpty(status.Version))
+                        psi.Environment["MM_STUDIO_VERSION"] = status.Version;
 
-                // _resultService.Add(new TestRunResult
-                // {
-                //     Id = Guid.NewGuid(),
-                //     RunId = runId,
-                //     SuiteName = suiteName,
-                //     ClassName = test.ClassName,
-                //     DisplayName = test.DisplayName,
-                //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
-                //     Output = output,
-                //     Error = error,
-                //     ExecutedAt = DateTime.Now
-                // });
+                    if (!string.IsNullOrEmpty(status.InstallerVersion))
+                        psi.Environment["MM_STUDIO_INSTALLER_VERSION"] = status.InstallerVersion;
 
-                // results.Add(new
-                // {
-                //     test.ClassName,
-                //     test.DisplayName,
-                //     // ExitCode = process.ExitCode,
-                //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
-                //     Output = output,
-                //     Error = error,
-                //     RunId = runId
-                // });
+                    using var process = Process.Start(psi);
 
-                // status.CompletedTests++;
+                    if (process == null)
+                        throw new Exception("Unable to start TestRunner.");
 
-                // status.Results.Add(new TestRunResult
-                // {
-                //     Id = Guid.NewGuid(),
-                //     RunId = runId,
-                //     SuiteName = suiteName,
-                //     ClassName = test.ClassName,
-                //     DisplayName = test.DisplayName,
-                //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
-                //     Output = output,
-                //     Error = error,
-                //     ExecutedAt = DateTime.Now
-                // });
+                    var outputTask = process.StandardOutput.ReadToEndAsync();
+                    var errorTask = process.StandardError.ReadToEndAsync();
 
-                var result = new TestRunResult
+                    bool stopped = false;
+
+                    try
+                    {
+                        await process.WaitForExitAsync(cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Kill TestRunner and everything it launched (e.g. techFlowJazz)
+                        stopped = true;
+                        process.Kill(entireProcessTree: true);
+                        await process.WaitForExitAsync();
+                    }
+
+                    string output = await outputTask;
+                    string error = await errorTask;
+
+                    if (stopped)
+                    {
+                        AddResult(status, test, "Stopped", output, error);
+                        processed++;
+                        break;
+                    }
+
+                    // _resultService.Add(new TestRunResult
+                    // {
+                    //     Id = Guid.NewGuid(),
+                    //     RunId = runId,
+                    //     SuiteName = suiteName,
+                    //     ClassName = test.ClassName,
+                    //     DisplayName = test.DisplayName,
+                    //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
+                    //     Output = output,
+                    //     Error = error,
+                    //     ExecutedAt = DateTime.Now
+                    // });
+
+                    // results.Add(new
+                    // {
+                    //     test.ClassName,
+                    //     test.DisplayName,
+                    //     // ExitCode = process.ExitCode,
+                    //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
+                    //     Output = output,
+                    //     Error = error,
+                    //     RunId = runId
+                    // });
+
+                    // status.CompletedTests++;
+
+                    // status.Results.Add(new TestRunResult
+                    // {
+                    //     Id = Guid.NewGuid(),
+                    //     RunId = runId,
+                    //     SuiteName = suiteName,
+                    //     ClassName = test.ClassName,
+                    //     DisplayName = test.DisplayName,
+                    //     Status = process.ExitCode == 0 ? "Passed" : "Failed",
+                    //     Output = output,
+                    //     Error = error,
+                    //     ExecutedAt = DateTime.Now
+                    // });
+
+                    var result = new TestRunResult
+                    {
+                        Id = Guid.NewGuid(),
+                        RunId = runId,
+                        SuiteName = suiteName,
+                        ProjectName = status.ProjectName,
+                        Version = status.Version,
+                        InstallerVersion = status.InstallerVersion,
+                        ClassName = test.ClassName,
+                        DisplayName = test.DisplayName,
+                        Status = process.ExitCode == 0 ? "Passed" : "Failed",
+                        Output = output,
+                        Error = error,
+                        ExecutedAt = DateTime.Now
+                    };
+
+                    _resultService.Add(result);
+
+                    status.CompletedTests++;
+                    status.Results.Add(result);
+                    _tracker.Update(status);
+                    processed++;
+
+                }
+
+                // List the tests a stopped run never reached
+                if (cts.IsCancellationRequested)
                 {
-                    Id = Guid.NewGuid(),
-                    RunId = runId,
-                    SuiteName = suiteName,
-                    ClassName = test.ClassName,
-                    DisplayName = test.DisplayName,
-                    Status = process.ExitCode == 0 ? "Passed" : "Failed",
-                    Output = output,
-                    Error = error,
-                    ExecutedAt = DateTime.Now
-                };
-
-                _resultService.Add(result);
-
-                status.CompletedTests++;
-                status.Results.Add(result);
-                _tracker.Update(status);
-
+                    foreach (var test in orderedTests.Skip(processed))
+                        AddResult(status, test, "Not Run", "", "");
+                }
             }
-            status.CurrentTest = "";
-            status.Finished = true;
-            _tracker.Update(status);
+            finally
+            {
+                _activeRuns.TryRemove(runId, out _);
+
+                status.CurrentTest = "";
+                status.Stopped = cts.IsCancellationRequested && status.CompletedTests < status.TotalTests;
+                status.Finished = true;
+                _tracker.Update(status);
+            }
 
             // return results;
             return new RunExecutionResponse
@@ -142,6 +216,49 @@ namespace TestOps.API.Services
                 RunId = runId,
                 Results = results
             };
+        }
+
+        private void AddResult(ExecutionStatus status, SuiteTest test, string result, string output, string error)
+        {
+            var runResult = new TestRunResult
+            {
+                Id = Guid.NewGuid(),
+                RunId = status.RunId,
+                SuiteName = status.SuiteName,
+                ProjectName = status.ProjectName,
+                Version = status.Version,
+                InstallerVersion = status.InstallerVersion,
+                ClassName = test.ClassName,
+                DisplayName = test.DisplayName,
+                Status = result,
+                Output = output,
+                Error = error,
+                ExecutedAt = DateTime.Now
+            };
+
+            _resultService.Add(runResult);
+
+            status.Results.Add(runResult);
+            _tracker.Update(status);
+        }
+
+        // Returns false if the run is unknown or already finished
+        public bool Stop(Guid runId)
+        {
+            if (!_activeRuns.TryGetValue(runId, out var cts))
+                return false;
+
+            try
+            {
+                cts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Run finished between the lookup and the cancel
+                return false;
+            }
+
+            return true;
         }
     }
 }

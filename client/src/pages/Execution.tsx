@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Table, Tag, Collapse, Spin } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { wasNotRun } from "../utils/resultStatus";
 
 type TestRunResult = {
   id: string;
@@ -22,6 +23,7 @@ type ExecutionGroup = {
   total: number;
   passed: number;
   failed: number;
+  notRun: number;
 };
 
 export default function Executions() {
@@ -56,6 +58,7 @@ export default function Executions() {
             total: 0,
             passed: 0,
             failed: 0,
+            notRun: 0,
           });
         }
 
@@ -64,6 +67,7 @@ export default function Executions() {
         g.total += 1;
 
         if (r.status === "Passed") g.passed += 1;
+        else if (wasNotRun(r.status)) g.notRun += 1;
         else g.failed += 1;
 
         // keep latest time
@@ -139,10 +143,21 @@ export default function Executions() {
             )}
           />
 
+          {/* Not Run */}
+          <Table.Column
+            title="Not Run"
+            render={(_, r: ExecutionGroup) => (
+              <Tag>{r.notRun}</Tag>
+            )}
+          />
+
           {/* Status */}
           <Table.Column
             title="Status"
             render={(_, r: ExecutionGroup) => {
+              if (r.notRun > 0)
+                return <Tag color="default">Stopped</Tag>;
+
               const allPassed = r.failed === 0;
 
               return (

@@ -7,5 +7,7 @@ namespace TestOps.API.Models
         public string MethodName { get; set; } = "";
 
         public List<string> Tags { get; set; } = new();
+
+        public List<string> TestLinkIds { get; set; } = new();
     }
 }
