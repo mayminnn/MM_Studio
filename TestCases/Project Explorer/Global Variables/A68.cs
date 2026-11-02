@@ -13,10 +13,10 @@ namespace Test_Cases.Project_Explorer.Global_Variables
     [TestLinkIds("tFJ-68")]
     public class A68 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private GlobalVariablePage _GVpage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private GlobalVariablePage _GVpage = null!;
         //private ChannelMapPage _channelMapPage;
 
         [TestInitialize]
@@ -71,9 +71,9 @@ namespace Test_Cases.Project_Explorer.Global_Variables
             Assert.IsTrue(
                 globalSheet.VerifyValidationSuccessLog("has successfully completed"));
 
-            Debug.WriteLine("--------------------------------------------------------");
-            Debug.WriteLine("| Global Variable configuration validated successfully |");
-            Debug.WriteLine("--------------------------------------------------------");
+            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine("| Global Variable configuration validated successfully |");
+            Console.WriteLine("--------------------------------------------------------");
 
             Cleanup();
         }

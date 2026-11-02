@@ -13,10 +13,10 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
     [TestLinkIds("tFJ-63")]
     public class A63 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private PinMapPage _pinMap;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private PinMapPage _pinMap = null!;
 
         [TestInitialize]
         public void Start()
@@ -35,16 +35,16 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             openDialog.OpenProject(ProjectName, Version);
 
             _projectExplorer = new ProjectExplorerPane(mainWindow, _assistant);
-            _projectExplorer.OpenPage("Pin Maps");
+            _projectExplorer.OpenPage("Pin Maps", TestSettings.PinMapSheetName);
 
-            _pinMap = new PinMapPage(mainWindow, _assistant);
+            _pinMap = new PinMapPage(mainWindow, _assistant, TestSettings.PinMapSheetName);
         }
 
         [TestMethod]
         public void Reuse_Pin_Name_Value_for_Group()
         {
             var assistant = new UIAssistant(AppManager.Automation);
-            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant);
+            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant, TestSettings.PinMapSheetName);
 
             pinSheet.ConfigurePMRow(
                 9,
@@ -58,18 +58,10 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             Assert.IsTrue(
                 pinSheet.VerifyValidationSuccessLog("PinGroup 'ABC' redefinition"));
 
-            Debug.WriteLine("-----------------------------------");
-            Debug.WriteLine("| tFJ63_ReusePinNameforGrp passed |");
-            Debug.WriteLine("-----------------------------------");
+            Console.WriteLine("-----------------------------------");
+            Console.WriteLine("| tFJ63_ReusePinNameforGrp passed |");
+            Console.WriteLine("-----------------------------------");
 
-            Cleanup();
-        }
-
-        [TestMethod]
-        public void zCleanUpReusePinNameForGroup()
-        {
-            var assistant = new UIAssistant(AppManager.Automation);
-            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant);
 
             pinSheet.ConfigurePMRow(
                 9,
@@ -83,11 +75,36 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             Assert.IsTrue(
                 pinSheet.VerifyValidationSuccessLog("has successfully completed"));
 
-            Debug.WriteLine("---------------");
-            Debug.WriteLine("| Error reset |");
-            Debug.WriteLine("---------------");
+            Console.WriteLine("---------------");
+            Console.WriteLine("| Error reset |");
+            Console.WriteLine("---------------");
 
             Cleanup();
         }
+
+        // [TestMethod]
+        // public void zCleanUpReusePinNameForGroup()
+        // {
+        //     var assistant = new UIAssistant(AppManager.Automation);
+        //     var pinSheet = new PinMapPage(AppManager.MainWindow, assistant, TestSettings.PinMapSheetName);
+
+        //     pinSheet.ConfigurePMRow(
+        //         9,
+        //         "HALF_PIN",
+        //         "SHUTDOWN",
+        //         "",
+        //         "");
+
+        //     pinSheet.ClickValidate();
+
+        //     Assert.IsTrue(
+        //         pinSheet.VerifyValidationSuccessLog("has successfully completed"));
+
+        //     Console.WriteLine("---------------");
+        //     Console.WriteLine("| Error reset |");
+        //     Console.WriteLine("---------------");
+
+        //     Cleanup();
+        // }
     }
 }

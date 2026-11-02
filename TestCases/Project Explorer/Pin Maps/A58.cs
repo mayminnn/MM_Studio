@@ -13,10 +13,10 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
     [TestLinkIds("tFJ-58")]
     public class A58 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private PinMapPage _pinMap;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private PinMapPage _pinMap = null!;
         //private ScreenCapture _screenCapture;
 
         [TestInitialize]
@@ -36,16 +36,16 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             openDialog.OpenProject(ProjectName, Version);
 
             _projectExplorer = new ProjectExplorerPane(mainWindow, _assistant);
-            _projectExplorer.OpenPage("Pin Maps");
+            _projectExplorer.OpenPage("Pin Maps", TestSettings.PinMapSheetName);
 
-            _pinMap = new PinMapPage(mainWindow, _assistant);
+            _pinMap = new PinMapPage(mainWindow, _assistant, TestSettings.PinMapSheetName);
         }
 
         [TestMethod]
         public void Defining_Pin_Name_without_Type()
         {
             var assistant = new UIAssistant(AppManager.Automation);
-            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant);
+            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant, TestSettings.PinMapSheetName);
 
             pinSheet.ConfigurePMRow(
                 6,
@@ -59,18 +59,9 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             Assert.IsTrue(
                 pinSheet.VerifyValidationSuccessLog("Type unspecified for PinName "));
 
-            Debug.WriteLine("-------------------------------");
-            Debug.WriteLine("| tFJ58_DefPinNameNoType passed |");
-            Debug.WriteLine("-------------------------------");
-
-            Cleanup();
-        }
-
-        [TestMethod]
-        public void zCleanUpPinName_noType_()
-        {
-            var assistant = new UIAssistant(AppManager.Automation);
-            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant);
+            Console.WriteLine("-------------------------------");
+            Console.WriteLine("| tFJ58_DefPinNameNoType passed |");
+            Console.WriteLine("-------------------------------");
 
             pinSheet.ConfigurePMRow(
                 6,
@@ -84,11 +75,37 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             Assert.IsTrue(
                 pinSheet.VerifyValidationSuccessLog("has successfully completed"));
 
-            Debug.WriteLine("---------------");
-            Debug.WriteLine("| Error reset |");
-            Debug.WriteLine("---------------");
+            Console.WriteLine("---------------");
+            Console.WriteLine("| Error reset |");
+            Console.WriteLine("---------------");
+
 
             Cleanup();
         }
+
+        // [TestMethod]
+        // public void zCleanUpPinName_noType_()
+        // {
+        //     var assistant = new UIAssistant(AppManager.Automation);
+        //     var pinSheet = new PinMapPage(AppManager.MainWindow, assistant, TestSettings.PinMapSheetName);
+
+        //     pinSheet.ConfigurePMRow(
+        //         6,
+        //         "",
+        //         "SHUTDOWN",
+        //         "IO",
+        //         "");
+
+        //     pinSheet.ClickValidate();
+
+        //     Assert.IsTrue(
+        //         pinSheet.VerifyValidationSuccessLog("has successfully completed"));
+
+        //     Console.WriteLine("---------------");
+        //     Console.WriteLine("| Error reset |");
+        //     Console.WriteLine("---------------");
+
+        //     Cleanup();
+        // }
     }
 }

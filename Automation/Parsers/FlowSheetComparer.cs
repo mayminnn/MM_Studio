@@ -8,7 +8,7 @@ namespace Automation.Parsers
     {
         private const double LimitTolerance = 0.0001;
 
-        public DatalogValidationResult Compare(DatalogResult datalog, FlowSheetData sheet, Dictionary<string, FlowSheetData> subFlowSheets = null)
+        public DatalogValidationResult Compare(DatalogResult datalog, FlowSheetData sheet, Dictionary<string, FlowSheetData>? subFlowSheets = null)
         {
             var result = new DatalogValidationResult();
 
@@ -28,14 +28,31 @@ namespace Automation.Parsers
 
             foreach (var test in datalog.TestLimits)
             {
-                var matchingRows = sheet.GetTestLimitRows(test.Name);
+                // Check each limit against the sheet of the flow it ran in, so a sub-flow
+                // reusing a test name isn't compared with the main flow's row
+                string? subFlow = GetSubFlowName(test.FlowPath);
+                FlowSheetData owningSheet = sheet;
 
-                int occurrence = occurrenceCount.TryGetValue(test.Name, out int c) ? c : 0;
-                occurrenceCount[test.Name] = occurrence + 1;
+                if (subFlow != null)
+                {
+                    if (subFlowSheets == null || !subFlowSheets.TryGetValue(subFlow, out FlowSheetData? subSheet) || subSheet == null)
+                    {
+                        result.Add(-1, test.Name, $"Ran in sub-flow '{subFlow}', but that flow's sheet was not provided for comparison.");
+                        continue;
+                    }
+
+                    owningSheet = subSheet;
+                }
+
+                var matchingRows = owningSheet.GetTestLimitRows(test.Name);
+
+                string key = $"{subFlow}|{test.Name}";
+                int occurrence = occurrenceCount.TryGetValue(key, out int c) ? c : 0;
+                occurrenceCount[key] = occurrence + 1;
 
                 if (occurrence >= matchingRows.Count)
                 {
-                    result.Add(-1, test.Name, $"No matching flow sheet row found (occurrence #{occurrence + 1} of this test name).");
+                    result.Add(-1, test.Name, $"No matching row in flow sheet '{subFlow ?? sheet.FlowName}' (occurrence #{occurrence + 1} of this test name).");
                     continue;
                 }
 
@@ -63,7 +80,7 @@ namespace Automation.Parsers
         // Verified against a real capture: predictions matched actual
         // BinName on all 8 sites, including cases where an earlier
         // failing test's bin was correctly overwritten by a later one.
-        private void CompareBinsPerSiteUsingSimulation(DatalogResult datalog, FlowSheetData sheet, Dictionary<string, FlowSheetData> subFlowSheets, DatalogValidationResult result)
+        private void CompareBinsPerSiteUsingSimulation(DatalogResult datalog, FlowSheetData sheet, Dictionary<string, FlowSheetData>? subFlowSheets, DatalogValidationResult result)
         {
             JazzProgram program = FlowSheetToJazzConverter.Convert(sheet);
             Dictionary<string, JazzProgram> subPrograms = FlowSheetToJazzConverter.ConvertSubFlows(subFlowSheets);
@@ -86,8 +103,8 @@ namespace Automation.Parsers
                     continue;
                 }
 
-                string actualStatus = site < datalog.Summary.Status.Count ? datalog.Summary.Status[site] : null;
-                string actualBinName = site < datalog.Summary.BinName.Count ? datalog.Summary.BinName[site] : null;
+                string? actualStatus = site < datalog.Summary.Status.Count ? datalog.Summary.Status[site] : null;
+                string? actualBinName = site < datalog.Summary.BinName.Count ? datalog.Summary.BinName[site] : null;
 
                 if (!string.IsNullOrEmpty(simulated.Result) &&
                     !string.Equals(simulated.Result, actualStatus, StringComparison.OrdinalIgnoreCase))
@@ -95,11 +112,11 @@ namespace Automation.Parsers
                     result.Add(site, null, $"Simulated Result '{simulated.Result}' does not match datalog STATUS '{actualStatus}'.");
                 }
 
-                if (!string.IsNullOrEmpty(simulated.Bin))
+                if (simulated.Bin is { Length: > 0 } simulatedBin)
                 {
-                    bool matches = !string.IsNullOrEmpty(actualBinName) &&
-                        (simulated.Bin.StartsWith(actualBinName, StringComparison.OrdinalIgnoreCase) ||
-                         actualBinName.StartsWith(simulated.Bin, StringComparison.OrdinalIgnoreCase));
+                    bool matches = actualBinName is { Length: > 0 } &&
+                        (simulatedBin.StartsWith(actualBinName, StringComparison.OrdinalIgnoreCase) ||
+                         actualBinName.StartsWith(simulatedBin, StringComparison.OrdinalIgnoreCase));
 
                     if (!matches)
                         result.Add(site, null, $"Simulated Bin '{simulated.Bin}' does not match datalog BinName '{actualBinName}'.");
@@ -117,6 +134,11 @@ namespace Automation.Parsers
                     continue;
 
                 double value = test.SiteValues[site];
+
+                // The site never reached this test, so it has no outcome to feed the simulation
+                if (double.IsNaN(value))
+                    continue;
+
                 bool passed = value >= test.LowLimit && value <= test.HighLimit;
 
                 if (!outcomes.TryGetValue(test.Name, out List<bool> list))
@@ -129,6 +151,15 @@ namespace Automation.Parsers
             }
 
             return outcomes;
+        }
+
+        // "Default>ATSPEED_SCAN" -> "ATSPEED_SCAN"; null for the top-level flow (or an older capture without a path)
+        private static string? GetSubFlowName(string flowPath)
+        {
+            if (string.IsNullOrEmpty(flowPath) || !flowPath.Contains(">"))
+                return null;
+
+            return flowPath.Substring(flowPath.LastIndexOf('>') + 1).Trim();
         }
 
         private static bool NearlyEqual(double a, double b)

@@ -103,7 +103,7 @@ namespace Automation.Components
 
                 string content = GetClipboardTextSTA();
 
-                Console.WriteLine($"Clipboard length: {content?.Length ?? 0}");
+                Console.WriteLine($"Clipboard length: {content.Length}");
 
                 return content;
             }
@@ -136,8 +136,8 @@ namespace Automation.Components
         // so we hop onto a dedicated STA thread just for the read.
         private static string GetClipboardTextSTA()
         {
-            string result = null;
-            Exception error = null;
+            string result = "";
+            Exception? error = null;
 
             var thread = new Thread(() =>
             {

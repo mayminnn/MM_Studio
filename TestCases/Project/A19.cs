@@ -42,7 +42,7 @@ namespace Test_Cases.Project
 
             Assert.IsNotNull(projectTree, "New project did not load successfully");
 
-            System.Diagnostics.Debug.WriteLine($"Project '{projectName}' created successfully");
+            Console.WriteLine($"Project '{projectName}' created successfully");
 
             Cleanup();
         }

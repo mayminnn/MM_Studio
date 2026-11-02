@@ -11,10 +11,10 @@ namespace Test_Cases.Project_Explorer.Bins
     //[TestClass]
     public class t18_BinConfig_HW_Type_Mismatch : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private BinSheetPage _binSheet;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private BinSheetPage _binSheet = null!;
 
         [TestInitialize]
         public void Start()
@@ -33,16 +33,16 @@ namespace Test_Cases.Project_Explorer.Bins
             openDialog.OpenProject(ProjectName, Version);
 
             _projectExplorer = new ProjectExplorerPane(mainWindow, _assistant);
-            _projectExplorer.OpenPage("Bins");
+            _projectExplorer.OpenPage("Bins", TestSettings.BinSheetName);
 
-            _binSheet = new BinSheetPage(mainWindow, _assistant);
+            _binSheet = new BinSheetPage(mainWindow, _assistant, TestSettings.BinSheetName);
         }
 
         //[TestMethod]
         public void HW_Type_Mismatch_Should_Fail()
         {
             var assistant = new UIAssistant(AppManager.Automation);
-            var binSheet = new BinSheetPage(AppManager.MainWindow, assistant);
+            var binSheet = new BinSheetPage(AppManager.MainWindow, assistant, TestSettings.BinSheetName);
             binSheet.ConfigureBinRow(
                 8,
                 "2001",
@@ -56,9 +56,9 @@ namespace Test_Cases.Project_Explorer.Bins
             Assert.IsTrue(
                 binSheet.VerifyValidationSuccessLog("Bin type does not match with previous set Hard Bin type"));
 
-            Debug.WriteLine("--------------------------------------------");
-            Debug.WriteLine("| HW bin type check validated successfully |");
-            Debug.WriteLine("--------------------------------------------");
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine("| HW bin type check validated successfully |");
+            Console.WriteLine("--------------------------------------------");
 
             Cleanup();
         }

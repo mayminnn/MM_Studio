@@ -3,6 +3,9 @@ import { Descriptions, Table, Tag } from "antd";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { statusColor } from "../utils/resultStatus";
+import BackButton from "../components/BackButton";
+import { getTestLinkIdMap, testLinkIdsFor } from "../services/testcaseService";
+import { testLinkUrl } from "../utils/testLink";
 
 type Result = {
     id: string;
@@ -24,6 +27,9 @@ export default function ExecutionDetail() {
 
     const [results, setResults] = useState<Result[]>([]);
 
+    // TestLink IDs live on the test case library, keyed by class name
+    const [testLinkIds, setTestLinkIds] = useState<Record<string, string[]>>({});
+
     useEffect(() => {
 
         axios
@@ -32,9 +38,19 @@ export default function ExecutionDetail() {
 
     }, [runId]);
 
+    useEffect(() => {
+
+        getTestLinkIdMap()
+            .then(setTestLinkIds)
+            .catch(() => setTestLinkIds({}));
+
+    }, []);
+
     return (
 
         <div style={{ padding:20 }}>
+
+            <BackButton to="/execution" label="Back" />
 
             <h2>Execution Details</h2>
 
@@ -60,13 +76,52 @@ export default function ExecutionDetail() {
                 onRow={(record)=>({
                     onClick:()=>{
                         navigate(`/executions/result/${record.id}`);
-                    }
+                    },
+                    // Rows open the result, so make them look and act like links
+                    onKeyDown:(e)=>{
+                        // Ignore Enter on the TestLink links inside the row
+                        if(e.key==="Enter" && e.target===e.currentTarget)
+                            navigate(`/executions/result/${record.id}`);
+                    },
+                    tabIndex:0,
+                    title:"View execution result",
+                    style:{ cursor:"pointer" }
                 })}
             >
 
                 <Table.Column
+                    title="Test ID"
+                    dataIndex="className"
+                />
+                
+                <Table.Column
                     title="Test"
                     dataIndex="displayName"
+                />
+
+                <Table.Column
+                    title="TestLink ID"
+                    render={(_,r:Result)=>{
+
+                        const ids = testLinkIdsFor(testLinkIds, r.className);
+
+                        return ids.length === 0
+                            ? "-"
+                            : ids.map(id =>
+                                <Tag key={id}>
+                                    {/* Stop the click from also opening the result row */}
+                                    <a
+                                        href={testLinkUrl(id)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={e => e.stopPropagation()}
+                                    >
+                                        {id}
+                                    </a>
+                                </Tag>
+                            );
+
+                    }}
                 />
 
                 <Table.Column
@@ -88,6 +143,15 @@ export default function ExecutionDetail() {
                             ? "-"
                             : new Date(r.executedAt).toLocaleString()
 
+                    }
+                />
+
+                {/* Open hint */}
+                <Table.Column
+                    width={40}
+                    align="center"
+                    render={()=>
+                        <span style={{ fontSize:18, color:"#999" }}>›</span>
                     }
                 />
 

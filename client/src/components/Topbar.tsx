@@ -2,7 +2,7 @@ import { UserCircle } from "lucide-react";
 
 export default function Topbar() {
   return (
-    <div className="h-16 bg-white border-b flex justify-between items-center px-8">
+    <div className="h-16 bg-white border-b flex justify-between items-center px-8 print:hidden">
       <h2 className="font-semibold text-xl">
         MM Studio
       </h2>

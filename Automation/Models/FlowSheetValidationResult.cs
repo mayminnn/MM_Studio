@@ -13,7 +13,7 @@ namespace Automation.Models
     {
         public int RowIndex { get; set; }
         public FlowValidationSeverity Severity { get; set; }
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
 
         public override string ToString()
         {

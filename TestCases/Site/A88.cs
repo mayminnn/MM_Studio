@@ -14,8 +14,8 @@ namespace Test_Cases.Site
     public class A88 : BaseTest
     {
 
-        private UIAssistant _assistant;
-        private PSPage _psPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -42,9 +42,9 @@ namespace Test_Cases.Site
             sitePane.ChangeSiteCount(siteCount);
             sitePane.ValidateGallerySites(siteCount);
 
-            Debug.WriteLine("---------------------------------");
-            Debug.WriteLine($"| Site count changed to {siteCount}|");
-            Debug.WriteLine("---------------------------------");
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine($"| Site count changed to {siteCount}|");
+            Console.WriteLine("-------------------------------------");
 
             Cleanup();
         }

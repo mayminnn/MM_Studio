@@ -3,6 +3,7 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using System.Diagnostics;
 using FlaUI.Core.Input;
+using FlaUI.Core.Tools;
 using FlaUI.Core.WindowsAPI;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,15 @@ namespace Automation.Components
 
         private AutomationElement GetSitePanel()
         {
-            var panel = _assistant.FindByAutomationId(_root, "rbbarSites");
+            // Right after a project opens the app can be too busy to answer UI Automation, and the
+            // search throws a COM "Operation timed out" instead of returning null; keep retrying
+            // through those until the panel shows up
+            var panel = Retry.WhileNull(
+                () => _root.FindFirstDescendant(cf => cf.ByAutomationId("rbbarSites")),
+                TimeSpan.FromSeconds(30),
+                TimeSpan.FromMilliseconds(500),
+                throwOnTimeout: false,
+                ignoreException: true).Result;
 
             if (panel == null)
                 throw new Exception("rbbarSites panel not found");
@@ -44,15 +53,50 @@ namespace Automation.Components
         {
             var panel = GetSitePanel();
 
-            var txtSite = panel
-                .FindAllDescendants(cf => cf.ByControlType(ControlType.Edit))
-                .FirstOrDefault()
-                ?.AsTextBox();
+            var txtSite = FindSiteEdit(panel);
+
+            // The site count box shows as a button (named after the current count) until it is
+            // clicked; clicking it opens the in-place editor, which is the Edit we type into
+            if (txtSite == null)
+            {
+                GetSiteCountButton(panel).Click();
+
+                txtSite = Retry.WhileNull(
+                    () => FindSiteEdit(panel),
+                    TimeSpan.FromSeconds(5),
+                    TimeSpan.FromMilliseconds(200),
+                    throwOnTimeout: false,
+                    ignoreException: true).Result;
+            }
 
             if (txtSite == null)
                 throw new Exception("Site textbox not found inside rbbarSites");
 
             return txtSite;
+        }
+
+        private static TextBox? FindSiteEdit(AutomationElement panel)
+        {
+            return panel
+                .FindAllDescendants(cf => cf.ByControlType(ControlType.Edit))
+                .FirstOrDefault()
+                ?.AsTextBox();
+        }
+
+        // The button next to the "Total Sites" label, in the same group as Confirm
+        private static Button GetSiteCountButton(AutomationElement panel)
+        {
+            var label = panel.FindFirstDescendant(cf => cf.ByName("Total Sites"));
+
+            var button = label?.Parent
+                ?.FindAllChildren(cf => cf.ByControlType(ControlType.Button))
+                .FirstOrDefault(b => !string.Equals(b.Name, "Confirm", StringComparison.OrdinalIgnoreCase))
+                ?.AsButton();
+
+            if (button == null)
+                throw new Exception("Site count box (button next to 'Total Sites') not found inside rbbarSites");
+
+            return button;
         }
 
         private Button GetConfirmButton()
@@ -150,7 +194,7 @@ namespace Automation.Components
             var dockSite = _assistant.FindByAutomationId(designUC, "mainBottomDockSite");
             var logPanel = _assistant.FindByAutomationId(dockSite, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

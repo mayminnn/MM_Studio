@@ -9,9 +9,9 @@ namespace Test_Cases.Login
     [TestClass]
     public class BaseTest
     {
-        protected AppManager AppManager;
-        protected LoginPage LoginPage;
-        protected PSPage MainPage;
+        protected AppManager AppManager = null!;
+        protected LoginPage LoginPage = null!;
+        protected PSPage MainPage = null!;
         // Set from the TestOps run dialog; see TestSettings for the defaults
         protected virtual string ProjectName => TestSettings.ProjectName;
         protected virtual string Version => TestSettings.Version;

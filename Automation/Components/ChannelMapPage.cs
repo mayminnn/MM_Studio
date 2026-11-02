@@ -5,6 +5,7 @@ using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
 using FlaUI.Core.WindowsAPI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Drawing;
@@ -41,7 +42,7 @@ namespace Automation.Components
             var CMDefault = _assistant.FindByName(bar, "Channel Map=Default");
             var sheetEditor = _assistant.FindByAutomationId(CMDefault, "ChannelMapSheetEditor");
 
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         public void SelectCellByFormula(string cellName)
@@ -99,22 +100,70 @@ namespace Automation.Components
         {
             Thread.Sleep(200);
 
-            // Copy cell content
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(300);
-
-            var text = System.Windows.Forms.Clipboard.GetText()?.Trim();
+            // Clipboard must be read on an STA thread, otherwise it silently returns ""
+            var text = ClipboardHelper.CopyAndGetText(() =>
+            {
+                Keyboard.Press(VirtualKeyShort.CONTROL);
+                Keyboard.Press(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.CONTROL);
+            }).Trim();
 
             Console.WriteLine($"Clipboard = [{text}]");
 
             return text;
         }
 
-        private void ClearAndEnterCellValue(string cellName, string value)
+        // The value the cell shows (e.g. "1" for =_BuildVersion), copied from the sheet
+        public string GetCellValue(string cellName)
+        {
+            SelectCellByFormula(cellName);
+
+            return GetSelectedCellValueByCopy();
+        }
+
+        // Every text the formula bar shows for the cell: the name box (its address) and the
+        // formula box (its content as typed, e.g. "=_BuildVersion" rather than the value).
+        // The sheet itself isn't readable through UIA, but the formula bar is
+        public List<string> GetFormulaBarTexts(string cellName)
+        {
+            SelectCellByFormula(cellName);
+
+            var formulaBar = GetFormulaBar();
+            var texts = new List<string>();
+
+            foreach (var element in new[] { formulaBar }.Concat(formulaBar.FindAllDescendants()))
+            {
+                AddText(texts, element.Properties.Name.ValueOrDefault);
+
+                try
+                {
+                    if (element.Patterns.Value.IsSupported)
+                        AddText(texts, element.Patterns.Value.Pattern.Value.ValueOrDefault);
+
+                    if (element.Patterns.LegacyIAccessible.IsSupported)
+                        AddText(texts, element.Patterns.LegacyIAccessible.Pattern.Value.ValueOrDefault);
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    // Element went away while being read; the others still count
+                }
+            }
+
+            Console.WriteLine($"Formula bar for {cellName} = [{string.Join(" | ", texts)}]");
+
+            return texts;
+        }
+
+        private static void AddText(List<string> texts, string? text)
+        {
+            text = text?.Trim();
+
+            if (!string.IsNullOrEmpty(text) && !texts.Contains(text!))
+                texts.Add(text!);
+        }
+
+        public void ClearAndEnterCellValue(string cellName, string value)
         {
             SelectCellByFormula(cellName);
 
@@ -369,7 +418,7 @@ namespace Automation.Components
             var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
             var bar = _assistant.FindByAutomationId(dockSite, "Document");
             var binDefault = _assistant.FindByName(bar, "Channel Map=Default");
-            return _assistant.FindByAutomationId(binDefault, "ChannelMapSheetEditor");
+            return _assistant.FindByAutomationId(binDefault, "ChannelMapSheetEditor").OrThrow("ChannelMapSheetEditor");
         }
 
         public void ClickValidate()
@@ -414,7 +463,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

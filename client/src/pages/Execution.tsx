@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Table, Tag, Collapse, Spin } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Table, Tag, Spin, Select, Space } from "antd";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { wasNotRun } from "../utils/resultStatus";
 
 type TestRunResult = {
@@ -14,11 +14,22 @@ type TestRunResult = {
   output: string;
   error: string;
   executedAt: string;
+  installerVersion?: string;
+  projectName?: string;
+  version?: string;
 };
+
+// Same label the Reports API uses for results saved before installer version was captured
+const UNSPECIFIED = "(unspecified)";
+
+const installerOf = (r: { installerVersion?: string }) => r.installerVersion?.trim() || UNSPECIFIED;
 
 type ExecutionGroup = {
   runId: string;
   suiteName: string;
+  installerVersion: string;
+  projectName: string;
+  version: string;
   executedAt: string;
   total: number;
   passed: number;
@@ -31,6 +42,23 @@ export default function Executions() {
 
   const [loading, setLoading] = useState(false);
   const [groups, setGroups] = useState<ExecutionGroup[]>([]);
+
+  // Installer filter lives in the URL so the Reports page can link here (?installer=1.0)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const installerFilter = searchParams.get("installer") ?? undefined;
+
+  const setInstallerFilter = (value?: string) => {
+    setSearchParams(value ? { installer: value } : {});
+  };
+
+  const installers = useMemo(
+    () => [...new Set(groups.map(g => g.installerVersion))].sort(),
+    [groups]
+  );
+
+  const visibleGroups = installerFilter
+    ? groups.filter(g => g.installerVersion === installerFilter)
+    : groups;
 
   useEffect(() => {
     loadExecutions();
@@ -54,6 +82,9 @@ export default function Executions() {
           map.set(r.runId, {
             runId: r.runId,
             suiteName: r.suiteName,
+            installerVersion: installerOf(r),
+            projectName: r.projectName ?? "",
+            version: r.version ?? "",
             executedAt: r.executedAt,
             total: 0,
             passed: 0,
@@ -76,7 +107,12 @@ export default function Executions() {
         }
       });
 
-      setGroups(Array.from(map.values()));
+      // Newest run first
+      setGroups(
+        Array.from(map.values()).sort(
+          (a, b) => new Date(b.executedAt).getTime() - new Date(a.executedAt).getTime()
+        )
+      );
     } catch (err) {
       console.error(err);
     } finally {
@@ -98,6 +134,18 @@ export default function Executions() {
       >
         <h2 style={{ margin: 0 }}>Executions</h2>
 
+        <Space>
+          <span>Installer</span>
+          <Select
+            style={{ width: 180 }}
+            allowClear
+            placeholder="All"
+            value={installerFilter}
+            onChange={setInstallerFilter}
+            options={installers.map(i => ({ value: i, label: i }))}
+          />
+        </Space>
+
     </div>
 
       {loading ? (
@@ -105,16 +153,31 @@ export default function Executions() {
       ) : (
         <Table
           rowKey="runId"
-          dataSource={groups}
+          dataSource={visibleGroups}
           onRow={(record) => ({
             onClick: () => {
               navigate(`/executions/${record.runId}`);
             },
-
+            // Rows open the run, so make them look and act like links
+            onKeyDown: (e) => {
+              if (e.key === "Enter") navigate(`/executions/${record.runId}`);
+            },
+            tabIndex: 0,
+            title: "View execution details",
+            style: { cursor: "pointer" },
           })}
         >
           {/* Suite */}
           <Table.Column title="Suite" dataIndex="suiteName" />
+
+          {/* Release / project under test */}
+          <Table.Column title="Installer" dataIndex="installerVersion" />
+          <Table.Column
+            title="Project / Version"
+            render={(_, r: ExecutionGroup) =>
+              r.projectName ? `${r.projectName} / ${r.version}` : "-"
+            }
+          />
 
           {/* Time */}
           <Table.Column
@@ -168,23 +231,12 @@ export default function Executions() {
             }}
           />
 
-          {/* Logs preview */}
+          {/* Open hint */}
           <Table.Column
-            title="Details"
+            width={40}
+            align="center"
             render={() => (
-              <Collapse
-                items={[
-                  {
-                    key: "1",
-                    label: "View details",
-                    children: (
-                      <div>
-                        Click row to view full execution details
-                      </div>
-                    ),
-                  },
-                ]}
-              />
+              <span style={{ fontSize: 18, color: "#999" }}>›</span>
             )}
           />
         </Table>

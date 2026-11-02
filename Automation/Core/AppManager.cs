@@ -9,9 +9,9 @@ namespace Automation.Core
 {
     public class AppManager
     {
-        public Application App { get; private set; }
-        public UIA3Automation Automation { get; private set; }
-        public Window MainWindow { get; private set; }
+        public Application App { get; private set; } = null!;
+        public UIA3Automation Automation { get; private set; } = null!;
+        public Window MainWindow { get; private set; } = null!;
 
         public void Launch()
         {
@@ -29,7 +29,7 @@ namespace Automation.Core
             {
                 var windows = App.GetAllTopLevelWindows(Automation);
                 return windows.FirstOrDefault(w => w.FindAllDescendants().Length > 20);
-            }, TimeSpan.FromSeconds(30)).Result;
+            }, TimeSpan.FromSeconds(30)).Result.OrThrow("techFlowJazz main window");
 
             MainWindow.Focus();
             Wait.UntilInputIsProcessed();

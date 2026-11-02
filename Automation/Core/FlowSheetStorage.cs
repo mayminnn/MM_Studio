@@ -46,7 +46,7 @@ namespace Automation.Core
             return data;
         }
 
-        public static string FindLatest(string projectName, string version, string testName, string flowName)
+        public static string? FindLatest(string projectName, string version, string testName, string flowName)
         {
             string folder = Path.Combine(RootFolder, Sanitize(projectName), Sanitize(version), Sanitize(testName));
 
@@ -55,7 +55,7 @@ namespace Automation.Core
 
             string pattern = $"{Sanitize(flowName)}_FlowSheet_*.json";
 
-            string latest = null;
+            string? latest = null;
             DateTime latestTime = DateTime.MinValue;
 
             foreach (var file in Directory.GetFiles(folder, pattern))

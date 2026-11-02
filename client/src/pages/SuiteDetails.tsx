@@ -1,8 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Button, Table, message, Space, InputNumber } from "antd";
+import { Button, Table, message, Space, InputNumber, Tag, Modal, Input } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import BackButton from "../components/BackButton";
+import { getTestCases } from "../services/testcaseService";
+import { testLinkUrl } from "../utils/testLink";
 
 type SuiteTest = {
   order: number;
@@ -10,6 +13,31 @@ type SuiteTest = {
   displayName: string;
   executionName: string;
 };
+
+// A test from the test case library
+type TestCase = {
+  className: string;
+  methodName: string;
+  tags: string[];
+  testLinkIds: string[];
+};
+
+const renderTestLinkIds = (ids: string[] = []) => (
+  <>
+    {ids.map(id => (
+      <Tag key={id}>
+        <a
+          href={testLinkUrl(id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open in TestLink"
+        >
+          {id}
+        </a>
+      </Tag>
+    ))}
+  </>
+);
 
 type Suite = {
   id: string;
@@ -24,6 +52,37 @@ export default function SuiteDetails() {
   const [suite, setSuite] = useState<Suite | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  // Test case library: TestLink IDs for the table, and the tests that can be added
+  const [library, setLibrary] = useState<TestCase[]>([]);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addSearch, setAddSearch] = useState("");
+  const [addKeys, setAddKeys] = useState<React.Key[]>([]);
+  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    getTestCases()
+      .then(setLibrary)
+      .catch(() => message.error("Failed to load test cases"));
+  }, []);
+
+  const testLinkIds = useMemo(
+    () => Object.fromEntries(library.map(t => [t.className.toLowerCase(), t.testLinkIds ?? []])),
+    [library]
+  );
+
+  // Library tests not in the suite yet, filtered by the search box
+  const addable = useMemo(() => {
+    const inSuite = new Set((suite?.tests ?? []).map(t => t.className.toLowerCase()));
+    const search = addSearch.toLowerCase();
+
+    return library.filter(t =>
+      !inSuite.has(t.className.toLowerCase()) &&
+      `${t.className} ${t.methodName} ${(t.testLinkIds ?? []).join(" ")} ${t.tags.join(" ")}`
+        .toLowerCase()
+        .includes(search)
+    );
+  }, [library, suite, addSearch]);
 
   // ----------------------------
   // Load suite
@@ -67,6 +126,64 @@ export default function SuiteDetails() {
       message.error("Failed to remove tests");
     }
   };
+
+  // ----------------------------
+  // Add tests from the library
+  // ----------------------------
+  const closeAdd = () => {
+    setAddOpen(false);
+    setAddKeys([]);
+    setAddSearch("");
+  };
+
+  const addSelected = async () => {
+    const tests = library
+      .filter(t => addKeys.includes(t.className))
+      .map(t => ({
+        className: t.className,
+        displayName: t.methodName,
+        executionName: t.methodName.replace(/\s+/g, "_")
+      }));
+
+    setAdding(true);
+
+    try {
+      // The server puts them at the end of the order and skips any already in the suite
+      const res = await axios.post(
+        `http://localhost:5072/api/suite/${id}/tests/add`,
+        tests
+      );
+
+      setSuite(res.data);
+      message.success(`${tests.length} test(s) added`);
+      closeAdd();
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to add tests");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const libraryColumns: ColumnsType<TestCase> = [
+    { title: "Test ID", dataIndex: "className", width: 140 },
+    { title: "Test Name", dataIndex: "methodName" },
+    {
+      title: "TestLink IDs",
+      dataIndex: "testLinkIds",
+      width: 200,
+      render: renderTestLinkIds
+    },
+    {
+      title: "Tags",
+      dataIndex: "tags",
+      render: (tags: string[]) => (
+        <>
+          {tags.map(t => <Tag key={t}>{t}</Tag>)}
+        </>
+      )
+    }
+  ];
 
   // ----------------------------
   // Row selection
@@ -131,87 +248,6 @@ export default function SuiteDetails() {
 
   };
 
-  // const moveUp = async (index: number) => {
-
-  //   // if (index === 0)
-  //   if (!suite || index === 0)
-  //     return;
-
-  //   const updated = [...suite.tests];
-
-  //   [updated[index - 1], updated[index]] =
-  //     [updated[index], updated[index - 1]];
-
-  //   updated.forEach((t, i) => {
-  //     t.order = i + 1;
-  //   });
-
-  //   // setSuite({
-  //   //     ...suite,
-  //   //     tests: updated
-  //   // });
-  //   const updatedSuite = {
-  //     ...suite,
-  //     tests: updated
-  //   };
-
-  //   setSuite(updatedSuite);
-
-  //   try {
-
-  //     await axios.put(
-  //       `http://localhost:5072/api/suite/${suite.id}`,
-  //       updatedSuite
-  //     );
-
-  //   }
-  //   catch {
-
-  //     message.error("Failed to save order");
-  //   }
-  // };
-
-  // const moveDown = async (index: number) => {
-
-  //   if (!suite || index === suite.tests.length - 1)
-  //     return;
-
-  //   const updated = [...suite.tests];
-
-  //   [updated[index], updated[index + 1]] =
-  //     [updated[index + 1], updated[index]];
-
-  //   updated.forEach((t, i) => {
-  //     t.order = i + 1;
-  //   });
-
-  //   // setSuite({
-  //   //     ...suite,
-  //   //     tests: updated
-  //   // });
-  //   const updatedSuite = {
-  //     ...suite,
-  //     tests: updated
-  //   };
-
-  //   setSuite(updatedSuite);
-
-  //   try {
-
-  //     await axios.put(
-  //       `http://localhost:5072/api/suite/${suite.id}`,
-  //       updatedSuite
-  //     );
-
-  //   }
-  //   catch {
-
-  //     message.error("Failed to save order");
-
-  //   }
-
-  // };
-
   // ----------------------------
   // Table columns
   // ----------------------------
@@ -250,35 +286,15 @@ export default function SuiteDetails() {
 
       )
     },
-    // {
-    //   title: "Move",
-    //   width: 100,
-    //   render: (_, record, index) => (
-    //     <>
-    //       <Button
-    //         size="small"
-    //         disabled={index === 0}
-    //         onClick={() => moveUp(index)}
-    //       >
-    //         ↑
-    //       </Button>
-
-    //       <Button
-    //         size="small"
-    //         // disabled={index === suite.tests.length - 1}
-    //         disabled={index >= (suite?.tests.length ?? 0) - 1}
-    //         style={{ marginLeft: 5 }}
-    //         onClick={() => moveDown(index)}
-    //       >
-    //         ↓
-    //       </Button>
-    //     </>
-    //   )
-    // },
     {
       title: "Test ID",
       dataIndex: "className",
       width: 150,
+    },
+    {
+      title: "TestLink IDs",
+      width: 200,
+      render: (_, record) => renderTestLinkIds(testLinkIds[record.className.toLowerCase()]),
     },
     {
       title: "Test Name",
@@ -297,6 +313,8 @@ export default function SuiteDetails() {
 
   return (
     <div style={{ padding: 20 }}>
+      <BackButton to="/testsuites" label="Back" />
+
       {/* HEADER */}
       <div
         style={{
@@ -319,6 +337,13 @@ export default function SuiteDetails() {
           </Button> */}
 
           <Button
+            type="primary"
+            onClick={() => setAddOpen(true)}
+          >
+            Add Test Cases
+          </Button>
+
+          <Button
             danger
             disabled={selectedRowKeys.length === 0}
             onClick={removeSelected}
@@ -327,6 +352,41 @@ export default function SuiteDetails() {
           </Button>
         </Space>
       </div>
+
+      <Modal
+        title="Add Test Cases"
+        open={addOpen}
+        width={1000}
+        onCancel={closeAdd}
+        onOk={addSelected}
+        okText={`Add (${addKeys.length})`}
+        okButtonProps={{ disabled: addKeys.length === 0, loading: adding }}
+      >
+        <Input
+          placeholder="Search test ID, name, TestLink ID or tag..."
+          value={addSearch}
+          onChange={e => setAddSearch(e.target.value)}
+          style={{ marginBottom: 12 }}
+        />
+
+        <Table
+          rowKey="className"
+          size="small"
+          columns={libraryColumns}
+          dataSource={addable}
+          rowSelection={{
+            selectedRowKeys: addKeys,
+            onChange: setAddKeys,
+            preserveSelectedRowKeys: true
+          }}
+          pagination={{ pageSize: 8 }}
+          locale={{
+            emptyText: addSearch
+              ? "No test cases match the search"
+              : "Every test case is already in this suite"
+          }}
+        />
+      </Modal>
 
       {/* TABLE */}
       <Table

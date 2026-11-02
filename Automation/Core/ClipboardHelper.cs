@@ -15,6 +15,10 @@ namespace Automation.Core
             ClipboardMutex.WaitOne();
             try
             {
+                // Clear first so an empty copy can't return stale text
+                // from a previous read
+                RunSTA(() => Clipboard.Clear());
+
                 performCopyGesture();
                 Thread.Sleep(500);
                 return GetTextSTA();
@@ -27,18 +31,30 @@ namespace Automation.Core
 
         public static string GetTextSTA()
         {
-            string result = null;
-            Exception error = null;
+            string result = "";
+
+            RunSTA(() =>
+            {
+                Retry.WhileTrue(() =>
+                {
+                    result = Clipboard.GetText();
+                    return string.IsNullOrEmpty(result);
+                }, TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(200));
+            });
+
+            return result;
+        }
+
+        // Clipboard APIs require an STA thread; MSTest runs tests on MTA
+        private static void RunSTA(Action action)
+        {
+            Exception? error = null;
 
             var thread = new Thread(() =>
             {
                 try
                 {
-                    Retry.WhileTrue(() =>
-                    {
-                        result = Clipboard.GetText();
-                        return string.IsNullOrEmpty(result);
-                    }, TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(200));
+                    action();
                 }
                 catch (Exception ex)
                 {
@@ -52,8 +68,6 @@ namespace Automation.Core
 
             if (error != null)
                 throw error;
-
-            return result;
         }
     }
 }

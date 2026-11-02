@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Table, Input, Button, Modal, Tag, Select, Card,
-  Row, Col, Statistic, Space, Spin, Progress
+  Row, Col, Statistic, Space, Spin, Progress, Popconfirm, message
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { getTestCases } from "../services/testcaseService";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import RunConfigModal, { type RunConfig } from "../components/RunConfigModal";
+import { testLinkUrl } from "../utils/testLink";
 
 type TestCase = {
   className: string;
@@ -17,6 +18,7 @@ type TestCase = {
 };
 
 type SuiteTest = {
+  order: number;
   className: string;
   displayName: string;
   executionName: string;
@@ -35,6 +37,7 @@ export default function TestCases() {
   const [running, setRunning] = useState(false);
   const [runId, setRunId] = useState("");
   const [status, setStatus] = useState<any>(null);
+  const [stopping, setStopping] = useState(false);
   const [runModalOpen, setRunModalOpen] = useState(false);
 
   useEffect(() => {
@@ -123,7 +126,18 @@ export default function TestCases() {
       width: 220,
       render: (ids: string[] = []) => (
         <>
-          {ids.map(id => <Tag key={id}>{id}</Tag>)}
+          {ids.map(id => (
+            <Tag key={id}>
+              <a
+                href={testLinkUrl(id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open in TestLink"
+              >
+                {id}
+              </a>
+            </Tag>
+          ))}
         </>
       )
     },
@@ -139,9 +153,11 @@ export default function TestCases() {
   ];
 
   const createSuite = async () => {
+    // Numbered from the start, so the suite page can reorder them straight away
     const tests: SuiteTest[] = data
       .filter(x => selectedRowKeys.includes(x.className))
-      .map(x => ({
+      .map((x, index) => ({
+        order: index + 1,
         className: x.className,
         displayName: x.methodName,
         executionName: x.methodName.replace(/\s+/g, "_")
@@ -194,8 +210,40 @@ export default function TestCases() {
       }
     );
 
+    setStopping(false);
     setRunId(res.data.runId);
     setRunning(true);
+  };
+
+  // Same as the Test Suites page: the run finishes as "stopped" and the
+  // status poll then opens its results like any other finished run
+  const stopRun = async () => {
+
+    if (!runId)
+      return;
+
+    setStopping(true);
+
+    try {
+
+      await axios.post(
+        `http://localhost:5072/api/execution/stop/${runId}`
+      );
+
+      message.info("Stopping run...");
+
+    }
+
+    catch (err: any) {
+
+      // 409 = run already finished on the backend
+      if (err?.response?.status !== 409)
+        message.error("Failed to stop run");
+
+      setStopping(false);
+
+    }
+
   };
 
   return (
@@ -239,21 +287,39 @@ export default function TestCases() {
 
             <Space style={{ marginTop: 15 }}>
 
-              <Spin spinning={running} />
+              <Spin spinning={running && !status.finished} />
 
               <Tag
                 color={
-                  status.finished
-                    ? "success"
-                    : "processing"
+                  status.stopped
+                    ? "error"
+                    : status.finished
+                      ? "success"
+                      : stopping ? "warning" : "processing"
                 }
               >
                 {
-                  status.finished
-                    ? "Completed"
-                    : "Running"
+                  status.stopped
+                    ? "Stopped"
+                    : status.finished
+                      ? "Completed"
+                      : stopping ? "Stopping" : "Running"
                 }
               </Tag>
+
+              {!status.finished && (
+                <Popconfirm
+                  title="Stop this run?"
+                  description="The current test will be terminated and remaining tests skipped."
+                  okText="Stop"
+                  okButtonProps={{ danger: true }}
+                  onConfirm={stopRun}
+                >
+                  <Button danger loading={stopping}>
+                    ■ Stop Run
+                  </Button>
+                </Popconfirm>
+              )}
 
             </Space>
 

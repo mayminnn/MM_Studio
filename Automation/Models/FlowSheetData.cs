@@ -25,7 +25,7 @@ namespace Automation.Models
                 .ToList();
         }
 
-        public string GetExpectedFailBinName(string testName)
+        public string? GetExpectedFailBinName(string testName)
         {
             return GetTestLimitRow(testName)?.FailBin;
         }

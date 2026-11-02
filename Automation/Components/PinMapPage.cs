@@ -15,7 +15,9 @@ namespace Automation.Components
         private readonly AutomationElement _window;
         private readonly UIAssistant _assistant;
 
-        public PinMapPage(AutomationElement window, UIAssistant assistant)
+        private readonly string _sheetName;
+
+        public PinMapPage(AutomationElement window, UIAssistant assistant, string sheetName = "Default")
         {
             if (window == null)
             {
@@ -29,18 +31,19 @@ namespace Automation.Components
 
             _window = window;
             _assistant = assistant;
+            _sheetName = sheetName;
+        }
+
+        private AutomationElement GetSheetEditor()
+        {
+            var sheet = SheetLocator.FindDocument(_window, _assistant, $"Pin Map={_sheetName}");
+            return _assistant.FindByAutomationId(sheet, "PinMapSheetEditor").OrThrow("PinMapSheetEditor");
         }
 
         private AutomationElement GetFormulaBar()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByName(dockSite, "DotNetBar Bar");
-            var binDefault = _assistant.FindByName(bar, "Pin Map=Default");
-            var sheetEditor = _assistant.FindByAutomationId(binDefault, "PinMapSheetEditor");
-
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            var sheetEditor = GetSheetEditor();
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         private void SelectCellByFormula(string cellName)
@@ -150,7 +153,7 @@ namespace Automation.Components
 
             Thread.Sleep(300);
 
-            return System.Windows.Forms.Clipboard.GetText()?.Trim();
+            return System.Windows.Forms.Clipboard.GetText().Trim();
         }
         
         public HashSet<string> GetPinGroupAndPinNames()
@@ -238,13 +241,15 @@ namespace Automation.Components
             var formulaBar = GetFormulaBar();
 
             var combo = formulaBar.FindFirstDescendant(
-                cf => cf.ByControlType(ControlType.ComboBox));
+                cf => cf.ByControlType(ControlType.ComboBox))
+                .OrThrow("Formula bar combo box");
 
             var edit = combo.FindFirstDescendant(
-                cf => cf.ByControlType(ControlType.Edit));
+                cf => cf.ByControlType(ControlType.Edit))
+                .OrThrow("Formula bar edit box");
 
             string address =
-                edit.AsTextBox().Text?.Trim();
+                (edit.AsTextBox().Text ?? "").Trim();
 
             System.Diagnostics.Debug.WriteLine(
                 $"Current Address = {address}");
@@ -270,7 +275,7 @@ namespace Automation.Components
 
             return System.Windows.Forms.Clipboard
                 .GetText()
-                ?.Trim();
+                .Trim();
         }
 
         private string[] GetVisibleDropdownItems()
@@ -404,12 +409,7 @@ namespace Automation.Components
 
         public void ClickValidate()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByAutomationId(dockSite, "Document");
-            var binDefault = _assistant.FindByName(bar, "Pin Map=Default");
-            var sheetEditor = _assistant.FindByAutomationId(binDefault, "PinMapSheetEditor");
+            var sheetEditor = GetSheetEditor();
             var validateBtn = _assistant.FindByName(sheetEditor, "Validate");
 
             if (validateBtn == null)
@@ -427,7 +427,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

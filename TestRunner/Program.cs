@@ -22,8 +22,8 @@ namespace TestRunner
             string className = args[0];
             string methodName = args[1];
 
-            object instance = null;
-            Type testType = null;
+            object? instance = null;
+            Type? testType = null;
 
             try
             {

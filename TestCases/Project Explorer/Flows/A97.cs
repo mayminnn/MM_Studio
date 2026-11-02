@@ -10,7 +10,7 @@ namespace Test_Cases.Project_Explorer.Flows
 {
     [TestClass]
     [TestTags("Project_Explorer", "Flows", "Positive", "Automated", "1.0")]
-    [TestLinkIds("tFJ-222", "tFJ-223", "tFJ-224", "tFJ-225", "tFJ-226")]
+    [TestLinkIds("tFJ-222", "tFJ-223", "tFJ-226")]
     
     public class A97
     {
@@ -22,9 +22,15 @@ namespace Test_Cases.Project_Explorer.Flows
         [TestMethod]
         public void Validate_Latest_Capture()
         {
-            string path = DatalogStorage.FindLatest(ProjectName, Version, TestName, FlowName);
+            ValidateCapture(ProjectName, Version, TestName, FlowName);
+        }
 
-            Assert.IsNotNull(path, $"No saved capture found for {ProjectName}/{Version}/{TestName}/{FlowName}. Run A95 first.");
+        // Checks the latest datalog capture saved under testName is internally consistent
+        public static void ValidateCapture(string projectName, string version, string testName, string flowName)
+        {
+            string? path = DatalogStorage.FindLatest(projectName, version, testName, flowName);
+
+            Assert.IsNotNull(path, $"No saved capture found for {projectName}/{version}/{testName}/{flowName}. Run A95 first.");
 
             Console.WriteLine($"Validating capture: {path}");
 

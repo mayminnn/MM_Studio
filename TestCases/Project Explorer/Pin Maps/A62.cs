@@ -13,10 +13,10 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
     [TestLinkIds("tFJ-62")]
     public class A62 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private PinMapPage _pinMap;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private PinMapPage _pinMap = null!;
 
         [TestInitialize]
         public void Start()
@@ -35,16 +35,16 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             openDialog.OpenProject(ProjectName, Version);
 
             _projectExplorer = new ProjectExplorerPane(mainWindow, _assistant);
-            _projectExplorer.OpenPage("Pin Maps");
+            _projectExplorer.OpenPage("Pin Maps", TestSettings.PinMapSheetName);
 
-            _pinMap = new PinMapPage(mainWindow, _assistant);
+            _pinMap = new PinMapPage(mainWindow, _assistant, TestSettings.PinMapSheetName);
         }
 
         [TestMethod]
         public void Valid_Pin_Group()
         {
             var assistant = new UIAssistant(AppManager.Automation);
-            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant);
+            var pinSheet = new PinMapPage(AppManager.MainWindow, assistant, TestSettings.PinMapSheetName);
 
             pinSheet.ConfigurePMRow(
                 9,
@@ -72,9 +72,9 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
             Assert.IsTrue(
                 pinSheet.VerifyValidationSuccessLog("has successfully completed"));
 
-            Debug.WriteLine("-------------------------------------------------");
-            Debug.WriteLine("| Pin Group configuration validated successfully |");
-            Debug.WriteLine("-------------------------------------------------");
+            Console.WriteLine("-------------------------------------------------");
+            Console.WriteLine("| Pin Group configuration validated successfully |");
+            Console.WriteLine("-------------------------------------------------");
 
             Cleanup();
         }

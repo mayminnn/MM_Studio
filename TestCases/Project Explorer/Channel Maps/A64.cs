@@ -15,10 +15,10 @@ namespace Test_Cases.Project_Explorer.Channel_Maps
     [TestLinkIds("tFJ-64")]
     public class A64 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private ChannelMapPage _cmSheet;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private ChannelMapPage _cmSheet = null!;
 
         [TestInitialize]
         public void Start()
@@ -92,7 +92,7 @@ namespace Test_Cases.Project_Explorer.Channel_Maps
             },
             TimeSpan.FromSeconds(10));
 
-            Debug.WriteLine($"Last Cell: {lastCell}, Actual Value: {actualValue}, Expected Value: {lastIndex}");
+            Console.WriteLine($"Last Cell: {lastCell}, Actual Value: {actualValue}, Expected Value: {lastIndex}");
 
             Assert.AreEqual(
                 lastIndex.ToString(),
@@ -100,11 +100,11 @@ namespace Test_Cases.Project_Explorer.Channel_Maps
                 $"Mismatch at {lastCell}. Expected {lastIndex}, got {actualValue}"
             );
 
-            Debug.WriteLine($"Checking {lastCell} = {actualValue}");
+            Console.WriteLine($"Checking {lastCell} = {actualValue}");
 
-            Debug.WriteLine("-----------------");
-            Debug.WriteLine("| tFJ-64 PASSED |");
-            Debug.WriteLine("-----------------");
+            Console.WriteLine("-----------------");
+            Console.WriteLine("| tFJ-64 PASSED |");
+            Console.WriteLine("-----------------");
 
             Cleanup();
         }

@@ -21,7 +21,7 @@ namespace Test_Cases.MenuAfterLogin
             var designButton = assistant.FindByName(mainWindow, "Design");
 
             Assert.IsNotNull(designButton, "Failed to navigate to Design page or Design button not found");
-            System.Diagnostics.Debug.WriteLine("Validation passed: On Design Page");
+            Console.WriteLine("Validation passed: On Design Page");
         }
     }
 }

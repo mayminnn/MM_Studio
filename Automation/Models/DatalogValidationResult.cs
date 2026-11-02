@@ -6,9 +6,9 @@ namespace Automation.Models
     {
         public int Site { get; set; }
 
-        public string TestName { get; set; }
+        public string? TestName { get; set; }
 
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
 
         public override string ToString()
         {
@@ -26,7 +26,7 @@ namespace Automation.Models
 
         public bool IsValid => Issues.Count == 0;
 
-        public void Add(int site, string testName, string description)
+        public void Add(int site, string? testName, string description)
         {
             Issues.Add(new DatalogIssue
             {

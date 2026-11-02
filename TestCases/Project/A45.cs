@@ -35,7 +35,7 @@ namespace Test_Cases.Project
             var projectTree = assistant.FindByAutomationId(mainWindow, "projectAdvTree");
             Assert.IsNotNull(projectTree, "Project did not load successfully");
 
-            System.Diagnostics.Debug.WriteLine("Project opened successfully");
+            Console.WriteLine("Project opened successfully");
         }
     }
 }

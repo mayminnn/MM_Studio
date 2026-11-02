@@ -14,10 +14,10 @@ namespace Test_Cases.Project_Explorer.Bins
     [TestLinkIds("tFJ-81")]
     public class A81 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private BinSheetPage _binSheet;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private BinSheetPage _binSheet = null!;
 
         [TestInitialize]
         public void Start()
@@ -36,16 +36,16 @@ namespace Test_Cases.Project_Explorer.Bins
             openDialog.OpenProject(ProjectName, Version);
 
             _projectExplorer = new ProjectExplorerPane(mainWindow, _assistant);
-            _projectExplorer.OpenPage("Bins");
+            _projectExplorer.OpenPage("Bins", TestSettings.BinSheetName);
 
-            _binSheet = new BinSheetPage(mainWindow, _assistant);
+            _binSheet = new BinSheetPage(mainWindow, _assistant, TestSettings.BinSheetName);
         }
 
         [TestMethod]
         public void Blank_HW_Bin()
         {
             var assistant = new UIAssistant(AppManager.Automation);
-            var binSheet = new BinSheetPage(AppManager.MainWindow, assistant);
+            var binSheet = new BinSheetPage(AppManager.MainWindow, assistant, TestSettings.BinSheetName);
 
             binSheet.ConfigureBinRow(
                 8,
@@ -60,9 +60,9 @@ namespace Test_Cases.Project_Explorer.Bins
             Assert.IsTrue(
                 binSheet.VerifyValidationSuccessLog("Field value of HW Bin cannot be empty"));
 
-            Debug.WriteLine("-------------------------------------");
-            Debug.WriteLine("| tFJ81_BinConfig_BlankHWBin passed |");
-            Debug.WriteLine("-------------------------------------");
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("| tFJ81_BinConfig_BlankHWBin passed |");
+            Console.WriteLine("-------------------------------------");
 
 
             //binSheet.ConfigureBinRow(
@@ -78,9 +78,9 @@ namespace Test_Cases.Project_Explorer.Bins
             //Assert.IsTrue(
             //    binSheet.VerifyValidationSuccessLog("Softbin or hardware bin number cannot use 0"));
 
-            //Debug.WriteLine("-------------------------------");
-            //Debug.WriteLine("| 0 value HW Bin check passed |");
-            //Debug.WriteLine("-------------------------------");
+            //Console.WriteLine("-------------------------------");
+            //Console.WriteLine("| 0 value HW Bin check passed |");
+            //Console.WriteLine("-------------------------------");
 
             Cleanup();
         }

@@ -15,10 +15,10 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-133")]
     public class A133 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private DPSPage _dpsPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private DPSPage _dpsPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -171,12 +171,12 @@ namespace Test_Cases.Project_Explorer.DPS
 
             foreach (var rule in rules)
             {
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
-                System.Diagnostics.Debug.WriteLine($"Row      : {row}");
-                System.Diagnostics.Debug.WriteLine($"DPS Set  : {rule.DPSSet}");
-                System.Diagnostics.Debug.WriteLine($"Mode     : {rule.Mode}");
-                System.Diagnostics.Debug.WriteLine($"Clamp    : {rule.Clamp}");
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
+                Console.WriteLine("--------------------------------");
+                Console.WriteLine($"Row      : {row}");
+                Console.WriteLine($"DPS Set  : {rule.DPSSet}");
+                Console.WriteLine($"Mode     : {rule.Mode}");
+                Console.WriteLine($"Clamp    : {rule.Clamp}");
+                Console.WriteLine("--------------------------------");
 
                 // Set DPSSet + Mode
                 SetDPSSetModeClamp(
@@ -196,22 +196,26 @@ namespace Test_Cases.Project_Explorer.DPS
                         string.IsNullOrEmpty(actualCRange),
                         $"Expected K{row} to be blank but got '{actualCRange}'");
                 }
-                else
+                else if (!rule.AllowedRanges.Contains(actualCRange))
                 {
-                    Assert.IsTrue(
-                        rule.AllowedRanges.Contains(actualCRange),
-                        $"Unexpected CRange '{actualCRange}' in K{row}");
+                    // Read back the inputs so the failure shows whether
+                    // Mode/Clamp were actually committed to the row
+                    Assert.Fail(
+                        $"Unexpected CRange '{actualCRange}' in K{row}. " +
+                        $"Row state: B{row}='{_dpsPage.GetCellValue($"B{row}")}', " +
+                        $"G{row}='{_dpsPage.GetCellValue($"G{row}")}', " +
+                        $"J{row}='{_dpsPage.GetCellValue($"J{row}")}'");
                 }
 
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"PASS -> K{row} = '{actualCRange}'\n");
 
                 row++;
             }
 
-            System.Diagnostics.Debug.WriteLine("--------------------------------");
-            System.Diagnostics.Debug.WriteLine("| CRANGE AUTO POPULATE PASSED |");
-            System.Diagnostics.Debug.WriteLine("--------------------------------");
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("| CRANGE AUTO POPULATE PASSED |");
+            Console.WriteLine("--------------------------------");
 
             Cleanup();
         }

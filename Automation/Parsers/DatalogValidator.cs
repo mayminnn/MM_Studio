@@ -6,7 +6,7 @@ namespace Automation.Parsers
 {
     public class DatalogValidator
     {
-        public DatalogValidationResult Validate(DatalogResult result, Func<string, ExpectedBin> expectedBinLookup = null)
+        public DatalogValidationResult Validate(DatalogResult result, Func<string, ExpectedBin>? expectedBinLookup = null)
         {
             var validation = new DatalogValidationResult();
 
@@ -35,7 +35,7 @@ namespace Automation.Parsers
             // still ran for real and is worth validating.
             for (int site = 0; site < siteCount; site++)
             {
-                string actualStatus = SafeGet(result.Summary.Status, site);
+                string actualStatus = SafeGet(result.Summary.Status, site) ?? "";
 
                 ValidateSiteLimits(result, site, actualStatus, validation);
                 ValidateSiteBin(result, site, actualStatus, expectedBinLookup, validation);
@@ -57,6 +57,11 @@ namespace Automation.Parsers
                 }
 
                 double value = test.SiteValues[site];
+
+                // The site didn't run this test (it jumped away or binned out earlier)
+                if (double.IsNaN(value))
+                    continue;
+
                 bool withinLimits = value >= test.LowLimit && value <= test.HighLimit;
 
                 // A failing measurement by itself is expected, normal
@@ -85,7 +90,7 @@ namespace Automation.Parsers
             }
         }
 
-        private void ValidateSiteBin(DatalogResult result, int site, string actualStatus, Func<string, ExpectedBin> expectedBinLookup, DatalogValidationResult validation)
+        private void ValidateSiteBin(DatalogResult result, int site, string actualStatus, Func<string, ExpectedBin>? expectedBinLookup, DatalogValidationResult validation)
         {
             if (expectedBinLookup == null)
                 return;
@@ -111,7 +116,7 @@ namespace Automation.Parsers
                 validation.Add(-1, null, $"{rowName} row has {actualCount} values, expected {expectedCount} (one per site).");
         }
 
-        private static T SafeGet<T>(List<T> list, int index)
+        private static T? SafeGet<T>(List<T> list, int index)
         {
             return index < list.Count ? list[index] : default;
         }

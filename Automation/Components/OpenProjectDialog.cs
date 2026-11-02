@@ -10,7 +10,7 @@ namespace Automation.Components
         private readonly AutomationElement _root;
         private readonly UIAssistant _assistant;
 
-        public OpenProjectDialog(AutomationElement root, UIAssistant assistant)
+        public OpenProjectDialog(AutomationElement? root, UIAssistant assistant)
         {
             if (root == null)
             {

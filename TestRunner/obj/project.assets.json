@@ -1242,7 +1242,7 @@
           "buildTransitive/net462/_._": {}
         }
       },
-      "System.Text.Json/8.0.4": {
+      "System.Text.Json/8.0.5": {
         "type": "package",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
@@ -1319,7 +1319,7 @@
           "FlaUI.Core": "5.0.0",
           "FlaUI.UIA2": "5.0.0",
           "FlaUI.UIA3": "5.0.0",
-          "System.Text.Json": "8.0.4",
+          "System.Text.Json": "8.0.5",
           "Tesseract": "5.2.0"
         },
         "compile": {
@@ -2418,7 +2418,7 @@
           "buildTransitive/net462/_._": {}
         }
       },
-      "System.Text.Json/8.0.4": {
+      "System.Text.Json/8.0.5": {
         "type": "package",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
@@ -2495,7 +2495,7 @@
           "FlaUI.Core": "5.0.0",
           "FlaUI.UIA2": "5.0.0",
           "FlaUI.UIA3": "5.0.0",
-          "System.Text.Json": "8.0.4",
+          "System.Text.Json": "8.0.5",
           "Tesseract": "5.2.0"
         },
         "compile": {
@@ -4059,10 +4059,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "System.Text.Json/8.0.4": {
-      "sha512": "bAkhgDJ88XTsqczoxEMliSrpijKZHhbJQldhAmObj/RbrN3sU5dcokuXmWJWsdQAhiMJ9bTayWsL1C9fbbCRhw==",
+    "System.Text.Json/8.0.5": {
+      "sha512": "0f1B50Ss7rqxXiaBJyzUu9bWFOO2/zSlifZ/UNMdiIpDYe4cY4LQQicP4nirK1OS31I43rn062UIJ1Q9bpmHpg==",
       "type": "package",
-      "path": "system.text.json/8.0.4",
+      "path": "system.text.json/8.0.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4127,7 +4127,7 @@
         "lib/net8.0/System.Text.Json.xml",
         "lib/netstandard2.0/System.Text.Json.dll",
         "lib/netstandard2.0/System.Text.Json.xml",
-        "system.text.json.8.0.4.nupkg.sha512",
+        "system.text.json.8.0.5.nupkg.sha512",
         "system.text.json.nuspec",
         "useSharedDesignerContext.txt"
       ]
