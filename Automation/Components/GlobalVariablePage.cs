@@ -41,7 +41,7 @@ namespace Automation.Components
             var GVDefault = _assistant.FindByName(bar, "Global Variable=Default");
             var sheetEditor = _assistant.FindByAutomationId(GVDefault, "GlobalVariableSheetEditor");
 
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         private void SelectGVCellByFormula(string cellName)
@@ -124,8 +124,10 @@ namespace Automation.Components
             Thread.Sleep(200);
 
             // Now the formula bar value contains the cell content
-            var combo = formulaBar.FindFirstDescendant(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox));
-            var edit = combo.FindFirstDescendant(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit));
+            var combo = formulaBar.FindFirstDescendant(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.ComboBox))
+                .OrThrow("Formula bar combo box");
+            var edit = combo.FindFirstDescendant(cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit))
+                .OrThrow("Formula bar edit box");
             var textBox = edit.AsTextBox();
             return textBox.Text;
         }
@@ -195,7 +197,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

@@ -8,12 +8,13 @@ using Test_Cases.Login;
 
 namespace Test_Cases.Project_Explorer.Pin_Maps
 {
-    //[TestClass]
+    [TestClass]
+    [Ignore("Disabled - not part of the TestLink suite")]
     public class OpenDefaultPM : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
 
         [TestInitialize]
         public void Start()
@@ -57,7 +58,7 @@ namespace Test_Cases.Project_Explorer.Pin_Maps
 
             Assert.IsNotNull(node, $"{pageName} node not found");
 
-            System.Diagnostics.Debug.WriteLine($"{pageName} opened successfully");
+            Console.WriteLine($"{pageName} opened successfully");
         }
     }
 }

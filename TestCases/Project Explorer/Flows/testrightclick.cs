@@ -14,11 +14,11 @@ namespace Test_Cases.Project_Explorer.Flows
     [TestClass]
     public class testRightClick : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private Flow _flowPage;
-        private DatalogClient _dc;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private Flow _flowPage = null!;
+        private DatalogClient _dc = null!;
 
         [TestInitialize]
         public void Start()

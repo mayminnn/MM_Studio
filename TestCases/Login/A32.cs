@@ -37,8 +37,8 @@ namespace Test_Cases.Login
                 errorText.Name);*/
 
             // debug/logging
-            System.Diagnostics.Debug.WriteLine($"Error popup observed: '{errorText.Name}'");
-            System.Diagnostics.Debug.WriteLine("Validation passed: Invalid login detected successfully");
+            Console.WriteLine($"Error popup observed: '{errorText.Name}'");
+            Console.WriteLine("Validation passed: Invalid login detected successfully");
 
             var okButton = Retry.WhileNull(() =>
             {
@@ -51,7 +51,7 @@ namespace Test_Cases.Login
 
             okButton.Focus();
             okButton.Click(); // close the dialog
-            System.Diagnostics.Debug.WriteLine("Popup closed by clicking OK");
+            Console.WriteLine("Popup closed by clicking OK");
             
             Cleanup();
         }

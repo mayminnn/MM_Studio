@@ -16,9 +16,9 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-129")]
     public class A129 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
 
         [TestInitialize]
         public void Start()
@@ -51,7 +51,7 @@ namespace Test_Cases.Project_Explorer.DPS
 
             //List<string> pinMapPins = pinMapPage.GetUniquePinNames();
 
-            //System.Diagnostics.Debug.WriteLine($"PinMap Count = {pinMapPins.Count}");
+            //Console.WriteLine($"PinMap Count = {pinMapPins.Count}");
             
             _projectExplorer.OpenPage("DPSSets");
 
@@ -61,7 +61,7 @@ namespace Test_Cases.Project_Explorer.DPS
 
             //List<string> dpsDropdownPins = dpsPage.GetPinDropdownValues(4);
 
-            //System.Diagnostics.Debug.WriteLine(
+            //Console.WriteLine(
                 //$"DPS Dropdown Count = {dpsDropdownPins.Count}");
 
             //var missingInDps = pinMapPins.Except(dpsDropdownPins,
@@ -89,12 +89,12 @@ namespace Test_Cases.Project_Explorer.DPS
             HashSet<string> pinMapValues =
                 pinMapPage.GetPinGroupAndPinNames();
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 $"Pin Map Values Count = {pinMapValues.Count}");
 
             foreach (var value in pinMapValues.OrderBy(x => x))
             {
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"PinMap : {value}");
             }
 
@@ -109,12 +109,12 @@ namespace Test_Cases.Project_Explorer.DPS
             HashSet<string> dpsValues =
                 dpsPage.GetPinDropdownValues(4);
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 $"DPS Dropdown Count = {dpsValues.Count}");
 
             foreach (var value in dpsValues.OrderBy(x => x))
             {
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"DPS : {value}");
             }
 
@@ -135,34 +135,34 @@ namespace Test_Cases.Project_Explorer.DPS
                     .OrderBy(x => x)
                     .ToList();
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 "====================================");
 
             if (missingInDps.Any())
             {
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     "Missing In DPS:");
 
                 foreach (var item in missingInDps)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    Console.WriteLine(
                         $"  {item}");
                 }
             }
 
             if (extraInDps.Any())
             {
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     "Extra In DPS:");
 
                 foreach (var item in extraInDps)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    Console.WriteLine(
                         $"  {item}");
                 }
             }
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 "====================================");
 
             Assert.IsFalse(

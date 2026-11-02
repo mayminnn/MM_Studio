@@ -13,10 +13,10 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-128")]
     public class A128 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private DPSPage _dpsPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private DPSPage _dpsPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -50,7 +50,7 @@ namespace Test_Cases.Project_Explorer.DPS
         public void SetDPSSetSequenceAndMode(int row, string dpsSet,
             string sequence, string mode)
         {
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 $"Row {row} | Sequence={sequence} | Mode={mode}");
 
             _dpsPage.ClearAndEnterCellValue($"B{row}", dpsSet);
@@ -96,13 +96,13 @@ namespace Test_Cases.Project_Explorer.DPS
 
             foreach (var rule in rules)
             {
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
-                System.Diagnostics.Debug.WriteLine($"Row      : {row}");
-                System.Diagnostics.Debug.WriteLine($"DPS Set  : {rule.DPSSet}");
-                System.Diagnostics.Debug.WriteLine($"Mode     : {rule.Mode}");
-                System.Diagnostics.Debug.WriteLine($"Sequence : {rule.Sequence}");
-                System.Diagnostics.Debug.WriteLine($"Expected : {rule.ExpectedFlow}");
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
+                Console.WriteLine("--------------------------------");
+                Console.WriteLine($"Row      : {row}");
+                Console.WriteLine($"DPS Set  : {rule.DPSSet}");
+                Console.WriteLine($"Mode     : {rule.Mode}");
+                Console.WriteLine($"Sequence : {rule.Sequence}");
+                Console.WriteLine($"Expected : {rule.ExpectedFlow}");
+                Console.WriteLine("--------------------------------");
 
                 SetDPSSetSequenceAndMode(
                     row,
@@ -112,20 +112,26 @@ namespace Test_Cases.Project_Explorer.DPS
 
                 string actualFlow = _dpsPage.GetFlowValue(row);
 
-                Assert.AreEqual(
-                    rule.ExpectedFlow,
-                    actualFlow,
-                    $"Flow mismatch at D{row}");
+                if (actualFlow != rule.ExpectedFlow)
+                {
+                    // Read back the inputs so the failure shows whether
+                    // Sequence/Mode were actually committed to the row
+                    Assert.Fail(
+                        $"Flow mismatch at D{row}. Expected '{rule.ExpectedFlow}', got '{actualFlow}'. " +
+                        $"Row state: B{row}='{_dpsPage.GetCellValue($"B{row}")}', " +
+                        $"C{row}='{_dpsPage.GetCellValue($"C{row}")}', " +
+                        $"G{row}='{_dpsPage.GetCellValue($"G{row}")}'");
+                }
 
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"\nFLOW MATCHED -> D{row} = {actualFlow}\n");
 
                 row++;
             }
 
-            System.Diagnostics.Debug.WriteLine("-------------------------------");
-            System.Diagnostics.Debug.WriteLine("| FLOW RULE VALIDATION PASSED |");
-            System.Diagnostics.Debug.WriteLine("------------------------------");
+            Console.WriteLine("-------------------------------");
+            Console.WriteLine("| FLOW RULE VALIDATION PASSED |");
+            Console.WriteLine("------------------------------");
 
             //Cleanup();
         }

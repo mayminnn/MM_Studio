@@ -15,8 +15,9 @@ namespace Automation.Components
     {
         private readonly AutomationElement _window;
         private readonly UIAssistant _assistant;
+        private readonly string _sheetName;
 
-        public BinSheetPage(AutomationElement window, UIAssistant assistant)
+        public BinSheetPage(AutomationElement window, UIAssistant assistant, string sheetName = "Default")
         {
             if (window == null)
             {
@@ -30,18 +31,19 @@ namespace Automation.Components
 
             _window = window;
             _assistant = assistant;
+            _sheetName = sheetName;
+        }
+
+        private AutomationElement GetSheetEditor()
+        {
+            var sheet = SheetLocator.FindDocument(_window, _assistant, $"Bin={_sheetName}");
+            return _assistant.FindByAutomationId(sheet, "BinSheetEditor").OrThrow("BinSheetEditor");
         }
 
         private AutomationElement GetFormulaBar()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByName(dockSite, "DotNetBar Bar");
-            var binDefault = _assistant.FindByName(bar, "Bin=Default");
-            var sheetEditor = _assistant.FindByAutomationId(binDefault, "BinSheetEditor");
-
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            var sheetEditor = GetSheetEditor();
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         private void SelectCellByFormula(string cellName)
@@ -214,7 +216,7 @@ namespace Automation.Components
 
             Thread.Sleep(300);
 
-            return System.Windows.Forms.Clipboard.GetText()?.Trim();
+            return System.Windows.Forms.Clipboard.GetText().Trim();
         }
 
         public List<string> GetFailBinNames()
@@ -313,12 +315,7 @@ namespace Automation.Components
 
         public void ClickValidate()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByAutomationId(dockSite, "Document");
-            var binDefault = _assistant.FindByName(bar, "Bin=Default");
-            var sheetEditor = _assistant.FindByAutomationId(binDefault, "BinSheetEditor");
+            var sheetEditor = GetSheetEditor();
 
             var tableLayout = _assistant.FindByAutomationId(sheetEditor, "tableLayoutPanel");
             var topToolStrip = _assistant.FindByAutomationId(sheetEditor, "mainTopToolStrip");
@@ -340,7 +337,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

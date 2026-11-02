@@ -14,14 +14,35 @@ namespace TestOps.API.Services
                 return new List<TestSuite>();
 
             var json = File.ReadAllText(_filePath);
-            return JsonSerializer.Deserialize<List<TestSuite>>(json)
-                   ?? new List<TestSuite>();
+            var suites = JsonSerializer.Deserialize<List<TestSuite>>(json)
+                         ?? new List<TestSuite>();
+
+            // Suites saved before orders were assigned have every test at 0
+            suites.ForEach(Renumber);
+
+            return suites;
+        }
+
+        // Numbers a suite's tests 1..n. Tests keep their saved order; any without one (0) go
+        // after them in list order. The suite page and runs both rely on order == position
+        public static void Renumber(TestSuite suite)
+        {
+            suite.Tests = suite.Tests
+                .Select((test, index) => (test, index))
+                .OrderBy(x => x.test.Order > 0 ? x.test.Order : int.MaxValue)
+                .ThenBy(x => x.index)
+                .Select(x => x.test)
+                .ToList();
+
+            for (int i = 0; i < suite.Tests.Count; i++)
+                suite.Tests[i].Order = i + 1;
         }
 
         public TestSuite Create(TestSuite suite)
         {
             var suites = GetAll();
 
+            Renumber(suite);
             suites.Add(suite);
 
             File.WriteAllText(
@@ -65,6 +86,7 @@ namespace TestOps.API.Services
             if (index == -1)
                 return;
 
+            Renumber(updated);
             suites[index] = updated;
 
             File.WriteAllText(

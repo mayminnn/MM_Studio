@@ -15,10 +15,10 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-311")]
     public class A311 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private DPSPage _dpsPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private DPSPage _dpsPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -80,9 +80,9 @@ namespace Test_Cases.Project_Explorer.DPS
             Assert.IsTrue(
                 _dpsPage.VerifyValidationSuccessLog("Every pin must be under the same mode"));
 
-            Debug.WriteLine("-----------------------------");
-            Debug.WriteLine("| A311 MODE CHECK PASSED |");
-            Debug.WriteLine("-----------------------------");
+            Console.WriteLine("-----------------------------");
+            Console.WriteLine("| A311 MODE CHECK PASSED |");
+            Console.WriteLine("-----------------------------");
 
             Cleanup();
         }

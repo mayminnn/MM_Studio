@@ -2,7 +2,7 @@ namespace Automation.Models
 {
     public class FlowTestDefinition
     {
-        public string TestName { get; set; }
+        public string TestName { get; set; } = "";
 
         public int TestNum { get; set; }
 

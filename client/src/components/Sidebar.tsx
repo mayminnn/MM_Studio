@@ -50,7 +50,7 @@ const menus = [
 export default function Sidebar() {
   return (
     // <div className="w-64 h-screen bg-slate-900 text-white p-5">
-    <div className="fixed left-0 top-0 w-64 h-screen bg-slate-900 text-white p-5">
+    <div className="fixed left-0 top-0 z-10 w-64 h-screen bg-slate-900 text-white p-5 print:hidden">
       <h1 className="text-2xl font-bold mb-8">
         MM Studio
       </h1>

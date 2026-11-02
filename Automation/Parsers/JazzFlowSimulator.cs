@@ -9,7 +9,7 @@ namespace Automation.Parsers
     {
         private readonly Dictionary<string, JazzProgram> _subFlows;
 
-        public JazzFlowSimulator(Dictionary<string, JazzProgram> subFlows = null)
+        public JazzFlowSimulator(Dictionary<string, JazzProgram>? subFlows = null)
         {
             _subFlows = subFlows ?? new Dictionary<string, JazzProgram>(StringComparer.OrdinalIgnoreCase);
         }
@@ -26,9 +26,9 @@ namespace Automation.Parsers
 
         private class ExecutionState
         {
-            public string Bin;
-            public string Result;
-            public string Binport;
+            public string? Bin;
+            public string? Result;
+            public string? Binport;
         }
 
         private void RunSteps(List<JazzStepDef> steps, Dictionary<string, List<bool>> outcomes, Dictionary<string, int> consumed, ExecutionState state)
@@ -57,11 +57,11 @@ namespace Automation.Parsers
                     if (!string.IsNullOrEmpty(subState.Bin))
                         state.Bin = subState.Bin;
 
-                    string binport = subState.Binport;
+                    string? binport = subState.Binport;
 
-                    if (!string.IsNullOrEmpty(binport))
+                    if (binport is { Length: > 0 })
                     {
-                        string resolved = ResolveBinport(binport, step);
+                        string? resolved = ResolveBinport(binport, step);
 
                         if (!string.IsNullOrEmpty(resolved))
                             state.Bin = resolved;
@@ -79,6 +79,13 @@ namespace Automation.Parsers
                     }
 
                     index++;
+                    continue;
+                }
+
+                // Unconditional jump; the Parameter column holds the target Label
+                if (cmd == "goto")
+                {
+                    index = FindLabelIndex(steps, step.Parameter);
                     continue;
                 }
 
@@ -117,6 +124,18 @@ namespace Automation.Parsers
                         branchTriggered = !string.IsNullOrEmpty(step.FailBin);
                         binValue = step.FailBin;
                         path = step.FailPath;
+                    }
+
+                    // A plain "pass" / "fail" Result names the branch it finalizes. A row
+                    // can carry both bins with Result "fail": passing sites take PassBin
+                    // and carry on, only failing sites are finalized here
+                    string resultValue = step.Result?.Trim() ?? "";
+
+                    if (string.Equals(resultValue, "pass", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(resultValue, "fail", StringComparison.OrdinalIgnoreCase))
+                    {
+                        branchTriggered &= string.Equals(resultValue, passed ? "pass" : "fail",
+                            StringComparison.OrdinalIgnoreCase);
                     }
 
                     if (!string.IsNullOrEmpty(binValue))
@@ -180,7 +199,7 @@ namespace Automation.Parsers
             return Regex.IsMatch(value, @"^(fail|pass)\d+$", RegexOptions.IgnoreCase);
         }
 
-        private static string ResolveBinport(string binport, JazzStepDef callStep)
+        private static string? ResolveBinport(string binport, JazzStepDef callStep)
         {
             Match match = Regex.Match(binport, @"^fail(\d+)$", RegexOptions.IgnoreCase);
 

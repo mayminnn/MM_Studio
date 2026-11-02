@@ -15,11 +15,11 @@ namespace Test_Cases.Project_Explorer.Global_Variables
     [TestLinkIds("tFJ-66")]
     public class A66 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private ChannelMapPage _cmSheet;
-        private ScreenCapture _screenCapture;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private ChannelMapPage _cmSheet = null!;
+        private ScreenCapture _screenCapture = null!;
 
         [TestInitialize]
         public void Start()
@@ -43,42 +43,79 @@ namespace Test_Cases.Project_Explorer.Global_Variables
             _cmSheet = new ChannelMapPage(mainWindow, _assistant);
         }
 
+        // Global variables defined by A68, referenced from the channel map's Pkg Pin column (C),
+        // and the value each cell shows once the reference resolves
+        private static readonly (int Row, string PinName, string Formula, string ExpectedValue)[] References =
+        {
+            (5, "ABC",  "=_BuildVersion", "1"),       // BuildVersion = 1.0
+            (6, "SDA",  "=_Delay",        "200*ms"),  // Delay = 200*ms
+            (7, "BOOT", "=_BootVoltage",  "3.4"),     // BootVoltage = 3.4
+        };
+
         [TestMethod]
         public void Reference_Global_Variable_in_Another_Sheets()
         {
             var assistant = new UIAssistant(AppManager.Automation);
             var cmSheet = new ChannelMapPage(AppManager.MainWindow, assistant);
 
-            cmSheet.ConfigureCMRow(
-                5,
-                "ABC",
-                "=_BuildVersion",
-                "Gnd",
-                "");
+            // Only the pin name and the reference: the check is about the value it resolves to
+            foreach (var reference in References)
+            {
+                cmSheet.ClearAndEnterCellValue($"B{reference.Row}", reference.PinName);
+                cmSheet.ClearAndEnterCellValue($"C{reference.Row}", reference.Formula);
+            }
 
-            cmSheet.ConfigureCMRow(
-                6,
-                "SDA",
-                "=_Delay",
-                "IO",
-                "");
+            var results = new System.Collections.Generic.List<(string Cell, string Formula, string FoundFormula, string Value, string Expected, bool Passed)>();
 
-            //cmSheet.ClickValidate();
+            foreach (var reference in References)
+            {
+                string cell = $"C{reference.Row}";
 
-            _screenCapture = new ScreenCapture();
-            _screenCapture.ElementCapture(cmSheet.GetCMRow(50));
-            _screenCapture.ElementCapture(cmSheet.GetCMRow(5));
-            _screenCapture.ElementCapture(cmSheet.GetCMRow(100));
-            _screenCapture.ElementCapture(cmSheet.GetCMRow(6));
+                // The cell keeps the reference: the formula bar shows the formula as typed
+                var formulaBar = cmSheet.GetFormulaBarTexts(cell);
 
-            //Assert.IsTrue(
-            //    cmSheet.VerifyValidationSuccessLog("has successfully completed"));
+                string foundFormula = formulaBar.FirstOrDefault(t =>
+                    string.Equals(t, reference.Formula, StringComparison.OrdinalIgnoreCase))
+                    ?? $"(not found; formula bar shows [{string.Join(" | ", formulaBar)}])";
 
-            //Debug.WriteLine("--------------------------------------------");
-            //Debug.WriteLine("| CM configuration validated successfully |");
-            //Debug.WriteLine("--------------------------------------------");
+                // ...and the cell resolves it to the global variable's value
+                string value = cmSheet.GetCellValue(cell);
 
-            //Cleanup();
+                bool passed = foundFormula.StartsWith("=") && SameValue(value, reference.ExpectedValue);
+
+                results.Add((cell, reference.Formula, foundFormula, value, reference.ExpectedValue, passed));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("========== GLOBAL VARIABLE REFERENCES ==========");
+
+            foreach (var r in results)
+            {
+                Console.WriteLine($"{r.Cell} {(r.Passed ? "PASS" : "FAIL")}");
+                Console.WriteLine($"    Formula bar : {r.FoundFormula}");
+                Console.WriteLine($"    Cell value  : '{r.Value}' (expected '{r.Expected}')");
+            }
+
+            Console.WriteLine("================================================");
+
+            Assert.IsFalse(results.Any(r => !r.Passed),
+                "Global variable references did not resolve as expected: " +
+                string.Join(", ", results.Where(r => !r.Passed).Select(r => $"{r.Cell} {r.Formula} = '{r.Value}' (expected '{r.Expected}')")));
+
+            Cleanup();
+        }
+
+        // "1" and "1.0" are the same value; anything that isn't a number must match exactly
+        private static bool SameValue(string actual, string expected)
+        {
+            var style = System.Globalization.NumberStyles.Any;
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+
+            if (double.TryParse(actual, style, culture, out double a) &&
+                double.TryParse(expected, style, culture, out double e))
+                return a == e;
+
+            return string.Equals(actual?.Trim(), expected, StringComparison.OrdinalIgnoreCase);
         }
 
         // [TestMethod]

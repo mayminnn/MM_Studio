@@ -5,7 +5,7 @@ namespace Automation.Models
 {
     public class DatalogResult
     {
-        public string FlowName { get; set; }
+        public string FlowName { get; set; } = "";
 
         public List<DatalogStep> Steps { get; set; }
 

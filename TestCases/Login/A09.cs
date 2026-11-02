@@ -15,7 +15,7 @@ namespace Test_Cases.Login
         public void Login_As_Admin()
         {
             Assert.IsNotNull(LoginPage);
-            Debug.WriteLine("Validation passed: Login successfully");
+            Console.WriteLine("Validation passed: Login successfully");
 
             Cleanup();
         }

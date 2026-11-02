@@ -14,11 +14,11 @@ namespace Test_Cases.Project_Explorer.Flows
     [TestClass]
     public class SelectBin : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private Flow _flowPage;
-        private DatalogClient _dc;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private Flow _flowPage = null!;
+        private DatalogClient _dc = null!;
 
         [TestInitialize]
         public void Start()
@@ -60,7 +60,7 @@ namespace Test_Cases.Project_Explorer.Flows
             List<string> expected =
                 binPage.GetFailBinNames();
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 $"Fail bins = {expected.Count}");
 
             _projectExplorer.OpenPage("Flows");
@@ -68,13 +68,13 @@ namespace Test_Cases.Project_Explorer.Flows
             var flow =
                 new Flow(AppManager.MainWindow, _assistant);
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 "test");
 
             List<string> dropdown =
                 flow.GetFailBinsDropdownItems(5);
 
-            System.Diagnostics.Debug.WriteLine(
+            Console.WriteLine(
                 "test2");
 
             CollectionAssert.AreEqual(

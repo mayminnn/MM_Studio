@@ -4,7 +4,7 @@ namespace Automation.Models
 {
     public class FlowDefinition
     {
-        public string FlowName { get; set; }
+        public string FlowName { get; set; } = "";
 
         public List<FlowTestDefinition> Tests { get; set; }
 

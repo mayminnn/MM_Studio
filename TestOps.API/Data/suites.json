@@ -72,5 +72,188 @@
         "ExecutionName": "Login_With_Valid_Username_Blank_Password"
       }
     ]
+  },
+  {
+    "Id": "79f4165b-6d82-46b1-8cff-c53ae127a302",
+    "Name": "Bins",
+    "CreatedAt": "2026-10-21T14:17:28.3213079+08:00",
+    "Tests": [
+      {
+        "Order": 1,
+        "ClassName": "A281",
+        "DisplayName": "Create New Bin Sheet",
+        "ExecutionName": "Create_New_Bin_Sheet"
+      },
+      {
+        "Order": 2,
+        "ClassName": "A399",
+        "DisplayName": "Create Duplicate Bin Sheet",
+        "ExecutionName": "Create_Duplicate_Bin_Sheet"
+      },
+      {
+        "Order": 3,
+        "ClassName": "A76",
+        "DisplayName": "Bin Configuration",
+        "ExecutionName": "Bin_Configuration"
+      },
+      {
+        "Order": 4,
+        "ClassName": "A77",
+        "DisplayName": "Duplicate SW Bin",
+        "ExecutionName": "Duplicate_SW_Bin"
+      },
+      {
+        "Order": 5,
+        "ClassName": "A78",
+        "DisplayName": "Duplicate Bin Name",
+        "ExecutionName": "Duplicate_Bin_Name"
+      },
+      {
+        "Order": 6,
+        "ClassName": "A79",
+        "DisplayName": "Blank Bin Name",
+        "ExecutionName": "Blank_Bin_Name"
+      },
+      {
+        "Order": 7,
+        "ClassName": "A80",
+        "DisplayName": "Blank SW Bin",
+        "ExecutionName": "Blank_SW_Bin"
+      },
+      {
+        "Order": 8,
+        "ClassName": "A81",
+        "DisplayName": "Blank HW Bin",
+        "ExecutionName": "Blank_HW_Bin"
+      },
+      {
+        "Order": 9,
+        "ClassName": "A82",
+        "DisplayName": "Blank Type",
+        "ExecutionName": "Blank_Type"
+      },
+      {
+        "Order": 10,
+        "ClassName": "A91",
+        "DisplayName": "Non Numeric HW Bin",
+        "ExecutionName": "Non_Numeric_HW_Bin"
+      },
+      {
+        "Order": 11,
+        "ClassName": "A103",
+        "DisplayName": "Non Numeric SW Bin",
+        "ExecutionName": "Non_Numeric_SW_Bin"
+      }
+    ]
+  },
+  {
+    "Id": "499640bc-33d6-4f74-8d31-4b1d0e4f184e",
+    "Name": "Pins",
+    "CreatedAt": "2026-10-21T17:45:33.5069045+08:00",
+    "Tests": [
+      {
+        "Order": 1,
+        "ClassName": "A55",
+        "DisplayName": "Valid Pin Name",
+        "ExecutionName": "Valid_Pin_Name"
+      },
+      {
+        "Order": 2,
+        "ClassName": "A58",
+        "DisplayName": "Defining Pin Name without Type",
+        "ExecutionName": "Defining_Pin_Name_without_Type"
+      },
+      {
+        "Order": 3,
+        "ClassName": "A59",
+        "DisplayName": "Undefined Pin Name",
+        "ExecutionName": "Undefined_Pin_Name"
+      },
+      {
+        "Order": 4,
+        "ClassName": "A60",
+        "DisplayName": "Duplicate Pin Name",
+        "ExecutionName": "Duplicate_Pin_Name"
+      },
+      {
+        "Order": 5,
+        "ClassName": "A62",
+        "DisplayName": "Valid Pin Group",
+        "ExecutionName": "Valid_Pin_Group"
+      },
+      {
+        "Order": 6,
+        "ClassName": "A63",
+        "DisplayName": "Reuse Pin Name Value for Group",
+        "ExecutionName": "Reuse_Pin_Name_Value_for_Group"
+      },
+      {
+        "Order": 7,
+        "ClassName": "A213",
+        "DisplayName": "Defined Pin Group as Pin Under Another Group",
+        "ExecutionName": "Defined_Pin_Group_as_Pin_Under_Another_Group"
+      }
+    ]
+  },
+  {
+    "Id": "89f144ce-9c1c-40ac-b444-dfb06ed5db21",
+    "Name": "DPS",
+    "CreatedAt": "2026-10-28T14:52:01.3123417+08:00",
+    "Tests": [
+      {
+        "Order": 1,
+        "ClassName": "A115",
+        "DisplayName": "Create New DPS Sheet",
+        "ExecutionName": "Create_New_DPS_Sheet"
+      },
+      {
+        "Order": 2,
+        "ClassName": "A116",
+        "DisplayName": "Create Duplicate DPS Sheet",
+        "ExecutionName": "Create_Duplicate_DPS_Sheet"
+      },
+      {
+        "Order": 3,
+        "ClassName": "A128",
+        "DisplayName": "Flow Auto Assignment Based on Sequence and Mode",
+        "ExecutionName": "Flow_Auto_Assignment_Based_on_Sequence_and_Mode"
+      },
+      {
+        "Order": 4,
+        "ClassName": "A129",
+        "DisplayName": "Verify Pin Name Retrieval from Pin Maps",
+        "ExecutionName": "Verify_Pin_Name_Retrieval_from_Pin_Maps"
+      },
+      {
+        "Order": 5,
+        "ClassName": "A130",
+        "DisplayName": "Bypassed Pin Is Skipped During Run",
+        "ExecutionName": "Bypassed_Pin_Is_Skipped_During_Run"
+      },
+      {
+        "Order": 6,
+        "ClassName": "A132",
+        "DisplayName": "Verify Automatic FRange Population",
+        "ExecutionName": "Verify_Automatic_FRange_Population"
+      },
+      {
+        "Order": 7,
+        "ClassName": "A133",
+        "DisplayName": "Verify Automatic CRange Population",
+        "ExecutionName": "Verify_Automatic_CRange_Population"
+      },
+      {
+        "Order": 8,
+        "ClassName": "A134",
+        "DisplayName": "SetDelay1",
+        "ExecutionName": "SetDelay1"
+      },
+      {
+        "Order": 9,
+        "ClassName": "A311",
+        "DisplayName": "Using Different Mode for Same DPS Set",
+        "ExecutionName": "Using_Different_Mode_for_Same_DPS_Set"
+      }
+    ]
   }
 ]

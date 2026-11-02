@@ -8,7 +8,7 @@ namespace Automation.Core
 {
     public class oldUIHelper
     {
-        public AutomationElement Find(AutomationElement parent, string key, int timeout = 10)
+        public AutomationElement? Find(AutomationElement parent, string key, int timeout = 10)
         {
             return Retry.WhileNull(() =>
             {
@@ -25,11 +25,14 @@ namespace Automation.Core
 
     public class UIHelper
     {
-        public AutomationElement Find(
-        AutomationElement parent,
+        public AutomationElement? Find(
+        AutomationElement? parent,
         string key,
         int timeout = 10)
             {
+                if (parent == null)
+                    return null;
+
                 return Retry.WhileNull(() =>
                 {
                     Wait.UntilInputIsProcessed();

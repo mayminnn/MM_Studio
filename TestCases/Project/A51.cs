@@ -39,7 +39,7 @@ namespace Test_Cases.Project
             // Verify log dynamically
             var logUserControl = assistant.FindByAutomationId(mainWindow, "logUserControl");
             var panel = assistant.FindByAutomationId(logUserControl, "panel");
-            var logListView = assistant.FindByAutomationId(panel, "logListView");
+            var logListView = assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
             var logItems = logListView.FindAllDescendants();
 
             bool found = logItems.Any(e => e.Name != null &&
@@ -47,8 +47,8 @@ namespace Test_Cases.Project
 
             Assert.IsTrue(found, $"Expected log not found for project {projectName}");
 
-            System.Diagnostics.Debug.WriteLine("Validation passed: Project close log found");
-            System.Diagnostics.Debug.WriteLine("Project closed successfully");
+            Console.WriteLine("Validation passed: Project close log found");
+            Console.WriteLine("Project closed successfully");
         }
     }
 }

@@ -18,12 +18,14 @@ namespace Test_Cases.Login
         {
             LoginPage.Login("user", "a");
 
+            string expectedMessage = TestSettings.InvalidCredentialsMessage;
+
             var errorText = Retry.WhileNull(() =>
             {
                 return AppManager.MainWindow.FindAllDescendants()
                     .FirstOrDefault(e =>
                         e.Name != null &&
-                        e.Name.Contains("Invalid username or password."));
+                        e.Name == expectedMessage);
 
             }, TimeSpan.FromSeconds(10)).Result;
 
@@ -31,12 +33,12 @@ namespace Test_Cases.Login
 
             // validate message
             Assert.AreEqual(
-                "Invalid username or password.",
+                expectedMessage,
                 errorText.Name);
 
             // debug/logging
-            System.Diagnostics.Debug.WriteLine($"Error popup observed: '{errorText.Name}'");
-            System.Diagnostics.Debug.WriteLine("Validation passed: Invalid login detected successfully");
+            Console.WriteLine($"Error popup observed: '{errorText.Name}'");
+            Console.WriteLine("Validation passed: Invalid login detected successfully");
 
             /*var okButton = Retry.WhileNull(() =>
             {
@@ -49,7 +51,7 @@ namespace Test_Cases.Login
 
             okButton.Focus();
             okButton.Click(); // close the dialog
-            System.Diagnostics.Debug.WriteLine("Popup closed by clicking OK");
+            Console.WriteLine("Popup closed by clicking OK");
             */
             Cleanup();
         }

@@ -27,7 +27,7 @@ namespace Automation.Components
 
         private AutomationElement GetPanel()
         {
-            return _assistant.FindByAutomationId(_root, "panelEx");
+            return _assistant.FindByAutomationId(_root, "panelEx").OrThrow("panelEx");
         }
 
         private void EnterProjectName(string projectName)

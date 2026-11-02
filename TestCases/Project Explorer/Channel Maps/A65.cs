@@ -14,8 +14,8 @@ namespace Test_Cases.Channel_Maps
     public class A65 : BaseTest
     {
 
-        private UIAssistant _assistant;
-        private PSPage _psPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -46,9 +46,9 @@ namespace Test_Cases.Channel_Maps
             Assert.IsTrue(
                 sitePane.VerifyValidationSuccessLog($"Invalid value '{invalidInput}' was entered"));
 
-            Debug.WriteLine("---------------------------------");
-            Debug.WriteLine($"| A65 passed|");
-            Debug.WriteLine("---------------------------------");
+            Console.WriteLine("---------------------------------");
+            Console.WriteLine($"| A65 passed|");
+            Console.WriteLine("---------------------------------");
 
             // Cleanup();
         }

@@ -23,7 +23,9 @@ namespace Automation.Parsers
 
                 if (line.StartsWith("Flow") && line.Contains(":"))
                 {
-                    result.FlowName = ExtractAfterColon(line);
+                    // A called sub-flow prints its own "Flow :" line; keep the top-level name
+                    if (string.IsNullOrEmpty(result.FlowName))
+                        result.FlowName = ExtractAfterColon(line);
                     continue;
                 }
 
@@ -33,7 +35,7 @@ namespace Automation.Parsers
 
                     if (Regex.IsMatch(line, @"TEST_LIMIT(#\d+)?\s*\["))
                     {
-                        TestLimitResult limit = ParseTestLimit(lines, i);
+                        TestLimitResult? limit = ParseTestLimit(lines, i);
 
                         if (limit != null)
                         {
@@ -84,7 +86,7 @@ namespace Automation.Parsers
             string line = lines[startIndex].Trim();
             string description = ExtractAfterColon(line);
 
-            string testTime = null;
+            string? testTime = null;
 
             for (int j = startIndex + 1; j < lines.Length; j++)
             {
@@ -111,7 +113,7 @@ namespace Automation.Parsers
             return step;
         }
 
-        private TestLimitResult ParseTestLimit(string[] lines, int startIndex)
+        private TestLimitResult? ParseTestLimit(string[] lines, int startIndex)
         {
             string line = lines[startIndex].Trim();
 
@@ -123,7 +125,13 @@ namespace Automation.Parsers
             var limit = new TestLimitResult();
             limit.Name = match.Groups[1].Value;
 
+            // "Start   :Default>ATSPEED_SCAN:TEST_LIMIT [...]" -> "Default>ATSPEED_SCAN"
+            Match flowMatch = Regex.Match(line, @"^Start\s*:([^:]*):");
+            if (flowMatch.Success)
+                limit.FlowPath = flowMatch.Groups[1].Value.Trim();
+
             int valueLine = startIndex + 1;
+            string? header = null;
 
             while (valueLine < lines.Length)
             {
@@ -135,6 +143,9 @@ namespace Automation.Parsers
                 if (current.StartsWith("End") && current.Contains("TEST_LIMIT"))
                     return null;
 
+                if (Regex.IsMatch(current, @"\bSite\s+\d+"))
+                    header = lines[valueLine];
+
                 valueLine++;
             }
 
@@ -143,7 +154,7 @@ namespace Automation.Parsers
 
             string[] tokens = Regex.Split(lines[valueLine].Trim(), @"\s+");
 
-            if (tokens.Length < 4)
+            if (tokens.Length < 3)
                 return null;
 
             double value;
@@ -168,6 +179,13 @@ namespace Automation.Parsers
 
             limit.Unit = tokens[2];
 
+            if (header != null)
+            {
+                limit.SiteValues.AddRange(ReadSiteColumns(header, lines[valueLine]));
+                return limit;
+            }
+
+            // No header to line up against: take the values in order
             for (int s = 3; s < tokens.Length; s++)
             {
                 if (double.TryParse(
@@ -181,6 +199,31 @@ namespace Automation.Parsers
             }
 
             return limit;
+        }
+
+        // Reads each site's value from its own column, lined up under "Site N" in the header.
+        // A site that didn't run the test (e.g. it already jumped away on a Pass Path) has a
+        // blank column; it becomes NaN so the values after it stay with the right sites
+        private static List<double> ReadSiteColumns(string header, string valueRow)
+        {
+            var columns = Regex.Matches(header, @"Site\s+\d+");
+            var values = new List<double>();
+
+            for (int c = 0; c < columns.Count; c++)
+            {
+                int start = columns[c].Index;
+                int end = c + 1 < columns.Count ? columns[c + 1].Index : valueRow.Length;
+
+                string cell = start < valueRow.Length
+                    ? valueRow.Substring(start, Math.Min(end, valueRow.Length) - start).Trim()
+                    : "";
+
+                values.Add(double.TryParse(cell, NumberStyles.Any, CultureInfo.InvariantCulture, out double value)
+                    ? value
+                    : double.NaN);
+            }
+
+            return values;
         }
 
         private static string[] SplitFixedWidthRow(string rawLine)

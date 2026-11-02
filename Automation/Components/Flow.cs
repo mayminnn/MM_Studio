@@ -1,4 +1,4 @@
-﻿using Automation.Core;
+using Automation.Core;
 using Automation.Models;
 using Automation.Parsers;
 using FlaUI.Core.AutomationElements;
@@ -17,30 +17,28 @@ namespace Automation.Components
     {
         private readonly AutomationElement _window;
         private readonly UIAssistant _assistant;
+        private readonly string _sheetName;
 
-        public Flow(AutomationElement window, UIAssistant assistant)
+        public Flow(AutomationElement window, UIAssistant assistant, string sheetName = "Default")
         {
             if (window == null) throw new ArgumentNullException("window");
             if (assistant == null) throw new ArgumentNullException("assistant");
 
             _window = window;
             _assistant = assistant;
+            _sheetName = sheetName;
         }
 
         private AutomationElement GetSheetEditor()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByAutomationId(dockSite, "Document");
-            var Flowdefault = _assistant.FindByName(bar, "Flow=Default");
-            return _assistant.FindByAutomationId(Flowdefault, "FlowSheetEditor");
+            var sheet = SheetLocator.FindDocument(_window, _assistant, $"Flow={_sheetName}");
+            return _assistant.FindByAutomationId(sheet, "FlowSheetEditor").OrThrow("FlowSheetEditor");
         }
 
         private AutomationElement GetFormulaBar()
         {
             var sheetEditor = GetSheetEditor();
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         private AutomationElement SelectCellByFormula(string cellName)
@@ -86,6 +84,103 @@ namespace Automation.Components
             return GetSheetEditor();
         }
 
+        public void ClearAndEnterCellValue(string cellName, string value)
+        {
+            SelectCellByFormula(cellName);
+            Thread.Sleep(200);
+
+            Keyboard.Press(VirtualKeyShort.F2); // enter edit mode
+            Thread.Sleep(100);
+
+            Keyboard.Press(VirtualKeyShort.CONTROL);
+            Keyboard.Press(VirtualKeyShort.KEY_A);
+            Keyboard.Release(VirtualKeyShort.KEY_A);
+            Keyboard.Release(VirtualKeyShort.CONTROL);
+            Thread.Sleep(100);
+
+            Keyboard.Press(VirtualKeyShort.DELETE);
+            Thread.Sleep(200);
+
+            if (!string.IsNullOrEmpty(value))
+            {
+                Keyboard.Type(value);
+                Thread.Sleep(100);
+            }
+
+            Keyboard.Press(VirtualKeyShort.ENTER);
+
+            Wait.UntilInputIsProcessed();
+            Thread.Sleep(300);
+
+            System.Diagnostics.Debug.WriteLine($"{cellName} = '{value}'");
+        }
+
+        // For dropdown cells (e.g. Command): clear the cell, open its list and click the item
+        public void EnterDropdownValue(string cell, string value)
+        {
+            SelectCellByFormula(cell);
+            Thread.Sleep(200);
+
+            Keyboard.Press(VirtualKeyShort.F2);
+            Thread.Sleep(100);
+
+            Keyboard.Press(VirtualKeyShort.CONTROL);
+            Keyboard.Press(VirtualKeyShort.KEY_A);
+            Keyboard.Release(VirtualKeyShort.KEY_A);
+            Keyboard.Release(VirtualKeyShort.CONTROL);
+            Thread.Sleep(100);
+
+            Keyboard.Press(VirtualKeyShort.DELETE);
+            Thread.Sleep(200);
+
+            Keyboard.Press(VirtualKeyShort.ENTER);
+            Thread.Sleep(200);
+
+            Keyboard.Press(VirtualKeyShort.UP);
+
+            if (string.IsNullOrEmpty(value))
+            {
+                System.Diagnostics.Debug.WriteLine($"{cell} cleared to blank");
+                return;
+            }
+
+            Thread.Sleep(300);
+
+            Keyboard.Press(VirtualKeyShort.ALT);
+            Keyboard.Press(VirtualKeyShort.DOWN);
+            Keyboard.Release(VirtualKeyShort.DOWN);
+            Keyboard.Release(VirtualKeyShort.ALT);
+
+            Thread.Sleep(300);
+
+            var dropdown = Retry.WhileNull(() =>
+                _window.FindAllDescendants(cf => cf.ByName("DropDown"))
+                       .FirstOrDefault(e => !e.IsOffscreen),
+                TimeSpan.FromSeconds(5))?.Result;
+
+            if (dropdown == null)
+                throw new Exception($"Dropdown container not found for {cell}");
+
+            var list = dropdown.FindFirstChild(cf => cf.ByControlType(ControlType.List));
+            if (list == null)
+                throw new Exception("Dropdown List not found inside DropDown container");
+
+            var item = list.FindFirstChild(cf => cf.ByName(value).And(cf.ByControlType(ControlType.ListItem)));
+            if (item == null)
+            {
+                string available = string.Join(", ", list.FindAllChildren(cf => cf.ByControlType(ControlType.ListItem))
+                    .Select(x => x.Name));
+
+                throw new Exception($"'{value}' not found in {cell} dropdown. Items: [{available}]");
+            }
+
+            item.Click();
+            Wait.UntilInputIsProcessed();
+            Thread.Sleep(300);
+
+            System.Diagnostics.Debug.WriteLine($"{cell} = {value}");
+        }
+
         public List<string> GetFailBinsDropdownItems(int row)
         {
             var sheet = SelectCellByFormula($"O{row}");
@@ -126,7 +221,7 @@ namespace Automation.Components
             Mouse.Click(MouseButton.Right);
             Thread.Sleep(300);
 
-            var failBins = _assistant.FindByName(_window, "Fail Bins");
+            var failBins = _assistant.FindByName(_window, "Fail Bins").OrThrow("Fail Bins");
             failBins.Click();
             Thread.Sleep(300);
 
@@ -186,7 +281,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 
@@ -216,7 +311,7 @@ namespace Automation.Components
                 Keyboard.Release(VirtualKeyShort.CONTROL);
             });
 
-            Console.WriteLine($"Flow sheet clipboard length: {rawText?.Length ?? 0}");
+            Console.WriteLine($"Flow sheet clipboard length: {rawText.Length}");
 
             if (string.IsNullOrWhiteSpace(rawText))
                 throw new Exception("Flow sheet copy returned empty text.");
@@ -248,7 +343,7 @@ namespace Automation.Components
                 Keyboard.Press(VirtualKeyShort.KEY_C);
                 Keyboard.Release(VirtualKeyShort.KEY_C);
                 Keyboard.Release(VirtualKeyShort.CONTROL);
-            })?.Trim();
+            }).Trim();
         }
 
         private static readonly string[] ColumnLetters =

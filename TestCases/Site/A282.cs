@@ -16,8 +16,8 @@ namespace Test_Cases.Site
     [TestLinkIds("tFJ-282")]
     public class A282 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -49,7 +49,7 @@ namespace Test_Cases.Site
 
             okButton.Focus();
             okButton.Click(); // close the dialog
-            System.Diagnostics.Debug.WriteLine("Popup closed by clicking OK");
+            Console.WriteLine("Popup closed by clicking OK");
         }
 
         [TestMethod]
@@ -68,7 +68,9 @@ namespace Test_Cases.Site
 
             }, TimeSpan.FromSeconds(10)).Result;
 
-            System.Diagnostics.Debug.WriteLine($"Error popup observed: '{errorText.Name}'");
+            Assert.IsNotNull(errorText, "Maximum-site error popup did not appear.");
+
+            Console.WriteLine($"Error popup observed: '{errorText.Name}'");
 
             clickOK();
 
@@ -84,13 +86,15 @@ namespace Test_Cases.Site
 
             }, TimeSpan.FromSeconds(10)).Result;
 
-            System.Diagnostics.Debug.WriteLine($"\nError popup observed: '{errorText2.Name}'");
+            Assert.IsNotNull(errorText2, "Minimum-site error popup did not appear.");
+
+            Console.WriteLine($"\nError popup observed: '{errorText2.Name}'");
 
             clickOK();
 
-            Debug.WriteLine("------------------------------------------------------");
-            Debug.WriteLine($"| Site Count Upper and Lower Range Limit Validated |");
-            Debug.WriteLine("------------------------------------------------------");
+            Console.WriteLine("------------------------------------------------------");
+            Console.WriteLine($"| Site Count Upper and Lower Range Limit Validated |");
+            Console.WriteLine("------------------------------------------------------");
 
             Cleanup();
         }

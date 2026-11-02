@@ -22,12 +22,18 @@ namespace Test_Cases.Project_Explorer.Flows
         [TestMethod]
         public void Print_Latest_Capture_By_Site()
         {
-            string path = DatalogStorage.FindLatest(
-                ProjectName, Version, TestName, FlowName);
+            PrintCapture(ProjectName, Version, TestName, FlowName);
+        }
+
+        // Prints the latest datalog capture saved under testName, site by site
+        public static void PrintCapture(string projectName, string version, string testName, string flowName)
+        {
+            string? path = DatalogStorage.FindLatest(
+                projectName, version, testName, flowName);
 
             Assert.IsNotNull(
                 path,
-                $"No saved capture found for {ProjectName}/{Version}/{TestName}/{FlowName}. " +
+                $"No saved capture found for {projectName}/{version}/{testName}/{flowName}. " +
                 "Run A95 first.");
 
             Console.WriteLine($"Loaded: {path}");
@@ -53,6 +59,13 @@ namespace Test_Cases.Project_Explorer.Flows
                         for (int site = 0; site < test.SiteValues.Count; site++)
                         {
                             double value = test.SiteValues[site];
+
+                            if (double.IsNaN(value))
+                            {
+                                Console.WriteLine($"      Site {site}: not tested");
+                                continue;
+                            }
+
                             bool withinLimits = value >= test.LowLimit && value <= test.HighLimit;
                             string verdict = withinLimits ? "PASS" : "FAIL";
 
@@ -93,6 +106,13 @@ namespace Test_Cases.Project_Explorer.Flows
                         }
 
                         double value = test.SiteValues[site];
+
+                        if (double.IsNaN(value))
+                        {
+                            Console.WriteLine($"    {test.Name}: not tested (site left the flow earlier)");
+                            continue;
+                        }
+
                         bool withinLimits = value >= test.LowLimit && value <= test.HighLimit;
                         string verdict = withinLimits ? "PASS" : "FAIL";
 
@@ -108,7 +128,7 @@ namespace Test_Cases.Project_Explorer.Flows
 
         private static string SafeGet<T>(List<T> list, int index)
         {
-            return index < list.Count ? list[index]?.ToString() : "(missing)";
+            return index < list.Count ? list[index]?.ToString() ?? "(null)" : "(missing)";
         }
     }
 }

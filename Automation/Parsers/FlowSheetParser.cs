@@ -31,7 +31,7 @@ namespace Automation.Parsers
             }
 
             int headerIndex = -1;
-            Dictionary<string, int> columnIndex = null;
+            Dictionary<string, int>? columnIndex = null;
 
             for (int i = 0; i < lines.Length; i++)
             {

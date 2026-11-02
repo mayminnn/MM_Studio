@@ -15,10 +15,10 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-132")]
     public class A132 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private DPSPage _dpsPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private DPSPage _dpsPage = null!;
 
         [TestInitialize]
         public void Start()
@@ -171,12 +171,12 @@ namespace Test_Cases.Project_Explorer.DPS
 
             foreach (var rule in rules)
             {
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
-                System.Diagnostics.Debug.WriteLine($"Row      : {row}");
-                System.Diagnostics.Debug.WriteLine($"DPS Set  : {rule.DPSSet}");
-                System.Diagnostics.Debug.WriteLine($"Mode     : {rule.Mode}");
-                System.Diagnostics.Debug.WriteLine($"FValue   : {rule.FValue}");
-                System.Diagnostics.Debug.WriteLine("--------------------------------");
+                Console.WriteLine("--------------------------------");
+                Console.WriteLine($"Row      : {row}");
+                Console.WriteLine($"DPS Set  : {rule.DPSSet}");
+                Console.WriteLine($"Mode     : {rule.Mode}");
+                Console.WriteLine($"FValue   : {rule.FValue}");
+                Console.WriteLine("--------------------------------");
 
                 // Set DPSSet + Mode
                 SetDPSSetModeFValue(
@@ -195,22 +195,26 @@ namespace Test_Cases.Project_Explorer.DPS
                         string.IsNullOrEmpty(actualFRange),
                         $"Expected I{row} to be blank but got '{actualFRange}'");
                 }
-                else
+                else if (!rule.AllowedRanges.Contains(actualFRange))
                 {
-                    Assert.IsTrue(
-                        rule.AllowedRanges.Contains(actualFRange),
-                        $"Unexpected FRange '{actualFRange}' in I{row}");
+                    // Read back the inputs so the failure shows whether
+                    // Mode/FValue were actually committed to the row
+                    Assert.Fail(
+                        $"Unexpected FRange '{actualFRange}' in I{row}. " +
+                        $"Row state: B{row}='{_dpsPage.GetCellValue($"B{row}")}', " +
+                        $"G{row}='{_dpsPage.GetCellValue($"G{row}")}', " +
+                        $"H{row}='{_dpsPage.GetCellValue($"H{row}")}'");
                 }
 
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"PASS -> I{row} = '{actualFRange}'\n");
 
                 row++;
             }
 
-            System.Diagnostics.Debug.WriteLine("--------------------------------");
-            System.Diagnostics.Debug.WriteLine("| FRANGE AUTO POPULATE PASSED |");
-            System.Diagnostics.Debug.WriteLine("--------------------------------");
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("| FRANGE AUTO POPULATE PASSED |");
+            Console.WriteLine("--------------------------------");
 
             //Cleanup();
         }

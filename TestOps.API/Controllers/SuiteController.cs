@@ -66,6 +66,34 @@ namespace TestOps.API.Controllers
             return Ok(suite);
         }
 
+        // Adds tests to the end of the suite, skipping any it already has
+        [HttpPost("{id}/tests/add")]
+        public IActionResult AddTests(string id, [FromBody] List<SuiteTest> tests)
+        {
+            var suite = _service.GetById(id);
+
+            if (suite == null)
+                return NotFound();
+
+            var existing = new HashSet<string>(
+                suite.Tests.Select(t => t.ClassName), StringComparer.OrdinalIgnoreCase);
+
+            int next = suite.Tests.Count;
+
+            foreach (var test in tests ?? new List<SuiteTest>())
+            {
+                if (string.IsNullOrWhiteSpace(test.ClassName) || !existing.Add(test.ClassName))
+                    continue;
+
+                test.Order = ++next;
+                suite.Tests.Add(test);
+            }
+
+            _service.Update(id, suite);
+
+            return Ok(_service.GetById(id));
+        }
+
         [HttpPut("{id}")]
         public IActionResult Update(string id, [FromBody] TestSuite suite)
         {

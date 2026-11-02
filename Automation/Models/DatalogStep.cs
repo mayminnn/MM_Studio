@@ -4,8 +4,8 @@ namespace Automation.Models
     {
         public string Description { get; set; } = "";
 
-        public string TestTime { get; set; }
+        public string? TestTime { get; set; }
 
-        public TestLimitResult TestLimit { get; set; }
+        public TestLimitResult? TestLimit { get; set; }
     }
 }

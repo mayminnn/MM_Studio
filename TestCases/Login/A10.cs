@@ -20,24 +20,26 @@ namespace Test_Cases.Login
         {
             LoginPage.Login("a", "wrongpassword");
 
+            string expectedMessage = TestSettings.InvalidCredentialsMessage;
+
             // find error text inside MainWindow
             var errorText = Retry.WhileNull(() =>
             {
                 return AppManager.MainWindow.FindAllDescendants()
                     .FirstOrDefault(e =>
                         e.Name != null &&
-                        e.Name.Contains("Invalid username or password."));
+                        e.Name == expectedMessage);
 
             }, TimeSpan.FromSeconds(10)).Result;
 
             Assert.IsNotNull(errorText, "Error message not found");
             Assert.AreEqual(
-                "Invalid username or password.",
+                expectedMessage,
                 errorText.Name);
 
             // debug/logging
-            System.Diagnostics.Debug.WriteLine($"Error popup observed: '{errorText.Name}'");
-            System.Diagnostics.Debug.WriteLine("Validation passed: Invalid login detected successfully");
+            Console.WriteLine($"Error popup observed: '{errorText.Name}'");
+            Console.WriteLine("Validation passed: Invalid login detected successfully");
 
             /*var okButton = Retry.WhileNull(() =>
             {
@@ -50,7 +52,7 @@ namespace Test_Cases.Login
 
             okButton.Focus();
             okButton.Click(); // close the dialog
-            System.Diagnostics.Debug.WriteLine("Popup closed by clicking OK");
+            Console.WriteLine("Popup closed by clicking OK");
             */
             Cleanup();
         }

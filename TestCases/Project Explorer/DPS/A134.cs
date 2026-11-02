@@ -15,10 +15,10 @@ namespace Test_Cases.Project_Explorer.DPS
     [TestLinkIds("tFJ-134")]
     public class A134 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private DPSPage _dpsPage;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private DPSPage _dpsPage = null!;
 
         [TestInitialize]
         public void Start()

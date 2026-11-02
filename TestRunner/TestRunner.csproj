@@ -6,6 +6,8 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- MSTest analyzers flow in through the TestCases reference; this console runner is not a test project -->
+    <NoWarn>$(NoWarn);MSTEST0001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

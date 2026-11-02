@@ -14,7 +14,10 @@ namespace Automation.Core
         private static readonly JsonSerializerOptions JsonOptions =
             new JsonSerializerOptions
             {
-                WriteIndented = true
+                WriteIndented = true,
+
+                // Sites that didn't run a test are stored as NaN
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals
             };
 
         public static string Save(
@@ -70,7 +73,7 @@ namespace Automation.Core
             return result;
         }
 
-        public static string FindLatest(
+        public static string? FindLatest(
             string projectName,
             string version,
             string testName,
@@ -87,7 +90,7 @@ namespace Automation.Core
 
             string pattern = Sanitize(flowName) + "_*.json";
 
-            string latest = null;
+            string? latest = null;
             DateTime latestTime = DateTime.MinValue;
 
             foreach (var file in Directory.GetFiles(folder, pattern))

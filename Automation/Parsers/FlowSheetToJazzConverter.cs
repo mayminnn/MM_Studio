@@ -48,7 +48,7 @@ namespace Automation.Parsers
             };
         }
 
-        public static Dictionary<string, JazzProgram> ConvertSubFlows(Dictionary<string, FlowSheetData> subFlowSheets)
+        public static Dictionary<string, JazzProgram> ConvertSubFlows(Dictionary<string, FlowSheetData>? subFlowSheets)
         {
             var result = new Dictionary<string, JazzProgram>(StringComparer.OrdinalIgnoreCase);
 

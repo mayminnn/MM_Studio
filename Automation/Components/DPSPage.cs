@@ -1,4 +1,4 @@
-﻿using Automation.Core;
+using Automation.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
@@ -15,8 +15,9 @@ namespace Automation.Components
     {
         private readonly AutomationElement _window;
         private readonly UIAssistant _assistant;
+        private readonly string _sheetName;
 
-        public DPSPage(AutomationElement window, UIAssistant assistant)
+        public DPSPage(AutomationElement window, UIAssistant assistant, string sheetName = "Default")
         {
             if (window == null)
             {
@@ -30,18 +31,13 @@ namespace Automation.Components
 
             _window = window;
             _assistant = assistant;
+            _sheetName = sheetName;
         }
 
         private AutomationElement GetFormulaBar()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByName(dockSite, "DotNetBar Bar");
-            var DPSsheet = _assistant.FindByName(bar, "DPS=Default");
-            var sheetEditor = _assistant.FindByAutomationId(DPSsheet, "DPSSheetEditor");
-
-            return _assistant.FindByAutomationId(sheetEditor, "formulaBar");
+            var sheetEditor = GetSheetEditor();
+            return _assistant.FindByAutomationId(sheetEditor, "formulaBar").OrThrow("formulaBar");
         }
 
         public void SelectCellByFormula(string cellName)
@@ -99,15 +95,14 @@ namespace Automation.Components
         {
             Thread.Sleep(200);
 
-            // Copy cell content
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(300);
-
-            return System.Windows.Forms.Clipboard.GetText()?.Trim();
+            // Clipboard must be read on an STA thread, otherwise it silently returns ""
+            return ClipboardHelper.CopyAndGetText(() =>
+            {
+                Keyboard.Press(VirtualKeyShort.CONTROL);
+                Keyboard.Press(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.KEY_C);
+                Keyboard.Release(VirtualKeyShort.CONTROL);
+            }).Trim();
         }
 
         public void ClearAndEnterCellValue(string cellName, string value)
@@ -265,12 +260,8 @@ namespace Automation.Components
 
         private AutomationElement GetSheetEditor()
         {
-            var pnlxPage = _assistant.FindByAutomationId(_window, "pnlxPage");
-            var designUC = _assistant.FindByAutomationId(pnlxPage, "projectDesignUserControl");
-            var dockSite = _assistant.FindByAutomationId(designUC, "mainDocDockSite");
-            var bar = _assistant.FindByAutomationId(dockSite, "Document");
-            var DPSdefault = _assistant.FindByName(bar, "DPS=Default");
-            return _assistant.FindByAutomationId(DPSdefault, "DPSSheetEditor");
+            var sheet = SheetLocator.FindDocument(_window, _assistant, $"DPS={_sheetName}");
+            return _assistant.FindByAutomationId(sheet, "DPSSheetEditor").OrThrow("DPSSheetEditor");
         }
 
         public string GetCellValue(string cell)
@@ -361,17 +352,7 @@ namespace Automation.Components
 
             SelectCellByFormula(cell);
 
-            Thread.Sleep(200);
-
-            // Copy cell content
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(300);
-
-            string flowValue = System.Windows.Forms.Clipboard.GetText()?.Trim();
+            string flowValue = GetSelectedCellValueByCopy();
 
             System.Diagnostics.Debug.WriteLine($"{cell} = {flowValue}");
 
@@ -406,17 +387,7 @@ namespace Automation.Components
 
             SelectCellByFormula(cell);
 
-            Thread.Sleep(200);
-
-            // Copy cell content
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(300);
-
-            string value = System.Windows.Forms.Clipboard.GetText()?.Trim();
+            string value = GetSelectedCellValueByCopy();
 
             System.Diagnostics.Debug.WriteLine($"{cell} = {value}");
 
@@ -429,17 +400,7 @@ namespace Automation.Components
 
             SelectCellByFormula(cell);
 
-            Thread.Sleep(200);
-
-            // Copy cell content
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.KEY_C);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(300);
-
-            string value = System.Windows.Forms.Clipboard.GetText()?.Trim();
+            string value = GetSelectedCellValueByCopy();
 
             System.Diagnostics.Debug.WriteLine($"{cell} = {value}");
 
@@ -466,7 +427,7 @@ namespace Automation.Components
         {
             var logPanel = _assistant.FindByAutomationId(_window, "logUserControl");
             var panel = _assistant.FindByAutomationId(logPanel, "panel");
-            var logList = _assistant.FindByAutomationId(panel, "logListView");
+            var logList = _assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
 
             var logs = logList.FindAllDescendants();
 

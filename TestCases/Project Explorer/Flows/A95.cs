@@ -6,6 +6,7 @@ using Automation.Models;
 using FlaUI.Core.Input;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
+using System.Linq;
 using Test_Cases.Attributes;
 using System.Threading;
 using Test_Cases.Login;
@@ -18,11 +19,11 @@ namespace Test_Cases.Project_Explorer.Flows
 
     public class A95 : BaseTest
     {
-        private UIAssistant _assistant;
-        private PSPage _psPage;
-        private ProjectExplorerPane _projectExplorer;
-        private Flow _flowPage;
-        private DatalogClient _dc;
+        private UIAssistant _assistant = null!;
+        private PSPage _psPage = null!;
+        private ProjectExplorerPane _projectExplorer = null!;
+        private Flow _flowPage = null!;
+        private DatalogClient _dc = null!;
 
         [TestInitialize]
         public void Start()
@@ -57,28 +58,62 @@ namespace Test_Cases.Project_Explorer.Flows
         [TestMethod]
         public void Execute_Flow()
         {
+            RunAndCapture(_flowPage, _dc, ProjectName, Version, nameof(A95));
+        }
+
+        // Validates and runs the open flow, saving the flow sheet and datalog under
+        // testName so A96-A98 can check them. Other tests call this for their own captures
+        public static DatalogResult RunAndCapture(Flow flowPage, DatalogClient dc,
+            string projectName, string version, string testName, string flowName = "Default")
+        {
             Console.WriteLine("STEP 1 - Start");
 
-            _flowPage.ClickValidate();
+            flowPage.ClickValidate();
             Console.WriteLine("STEP 2 - Validate done");
 
-            _flowPage.SaveFlow(ProjectName, Version, nameof(A95));
+            flowPage.SaveFlow(projectName, version, testName, flowName);
 
-            _flowPage.ClickStartDebug();
+            flowPage.ClickStartDebug();
             Console.WriteLine("STEP 3 - Debug started");
 
             Thread.Sleep(5000);
             Console.WriteLine("STEP 4 - Wait done");
 
-            DatalogResult result = _dc.CaptureAndSave(
-                projectName: ProjectName,
-                version: Version,
-                testName: nameof(A95));
+            DatalogResult result = dc.CaptureAndSave(
+                projectName: projectName,
+                version: version,
+                testName: testName);
 
             Console.WriteLine("STEP 5 - Capture saved");
             Console.WriteLine($"Flow: {result.FlowName}");
             Console.WriteLine($"Total Test Limits: {result.TestLimits.Count}");
             Console.WriteLine($"Sites: {result.Summary.Status.Count}");
+
+            return result;
+        }
+
+        // Opens and saves the sheet of each flow named in a "call" row of the saved flow sheet,
+        // so A98 can simulate the calls. Returns the sub-flow names to pass to A98
+        public static string[] SaveCalledFlowSheets(ProjectExplorerPane projectExplorer,
+            FlaUI.Core.AutomationElements.AutomationElement window, UIAssistant assistant,
+            string projectName, string version, string testName, FlowSheetData sheet)
+        {
+            string[] subFlows = sheet.Rows
+                .Where(r => string.Equals(r.Command, "call", System.StringComparison.OrdinalIgnoreCase))
+                .Select(r => r.Parameter?.Trim() ?? "")
+                .Where(x => x.Length > 0)
+                .Distinct(System.StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            foreach (string subFlow in subFlows)
+            {
+                projectExplorer.OpenPage("Flows", subFlow);
+
+                new Flow(window, assistant, subFlow)
+                    .SaveFlow(projectName, version, testName, subFlow);
+            }
+
+            return subFlows;
         }
     }
 }
