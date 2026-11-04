@@ -97,6 +97,8 @@ namespace TestOps.API.Services
                     if (!string.IsNullOrEmpty(status.InstallerVersion))
                         psi.Environment["MM_STUDIO_INSTALLER_VERSION"] = status.InstallerVersion;
 
+                    var stopwatch = Stopwatch.StartNew();
+
                     using var process = Process.Start(psi);
 
                     if (process == null)
@@ -119,12 +121,14 @@ namespace TestOps.API.Services
                         await process.WaitForExitAsync();
                     }
 
+                    stopwatch.Stop();
+
                     string output = await outputTask;
                     string error = await errorTask;
 
                     if (stopped)
                     {
-                        AddResult(status, test, "Stopped", output, error);
+                        AddResult(status, test, "Stopped", output, error, stopwatch.ElapsedMilliseconds);
                         processed++;
                         break;
                     }
@@ -181,7 +185,8 @@ namespace TestOps.API.Services
                         Status = process.ExitCode == 0 ? "Passed" : "Failed",
                         Output = output,
                         Error = error,
-                        ExecutedAt = DateTime.Now
+                        ExecutedAt = DateTime.Now,
+                        DurationMs = stopwatch.ElapsedMilliseconds
                     };
 
                     _resultService.Add(result);
@@ -218,7 +223,7 @@ namespace TestOps.API.Services
             };
         }
 
-        private void AddResult(ExecutionStatus status, SuiteTest test, string result, string output, string error)
+        private void AddResult(ExecutionStatus status, SuiteTest test, string result, string output, string error, long durationMs = 0)
         {
             var runResult = new TestRunResult
             {
@@ -233,7 +238,8 @@ namespace TestOps.API.Services
                 Status = result,
                 Output = output,
                 Error = error,
-                ExecutedAt = DateTime.Now
+                ExecutedAt = DateTime.Now,
+                DurationMs = durationMs
             };
 
             _resultService.Add(runResult);

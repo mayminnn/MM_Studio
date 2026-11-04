@@ -14,5 +14,7 @@ namespace TestOps.API.Models
         public string Output { get; set; } = "";
         public string Error { get; set; } = "";
         public DateTime ExecutedAt { get; set; }
+        // Time the test took to run, in milliseconds (0 for tests that never ran)
+        public long DurationMs { get; set; }
     }
 }

@@ -6,6 +6,7 @@ import { statusColor } from "../utils/resultStatus";
 import BackButton from "../components/BackButton";
 import { getTestLinkIdMap, testLinkIdsFor } from "../services/testcaseService";
 import { testLinkUrl } from "../utils/testLink";
+import { formatDuration } from "../utils/duration";
 
 type Result = {
     id: string;
@@ -13,6 +14,7 @@ type Result = {
     className: string;
     status: string;
     executedAt: string;
+    durationMs?: number;
     suiteName: string;
     projectName?: string;
     version?: string;
@@ -144,6 +146,11 @@ export default function ExecutionDetail() {
                             : new Date(r.executedAt).toLocaleString()
 
                     }
+                />
+
+                <Table.Column
+                    title="Duration"
+                    render={(_,r:Result)=>formatDuration(r.durationMs)}
                 />
 
                 {/* Open hint */}
