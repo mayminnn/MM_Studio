@@ -3,6 +3,7 @@ import { Table, Tag, Spin, Select, Space } from "antd";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { wasNotRun } from "../utils/resultStatus";
+import { formatDuration } from "../utils/duration";
 
 type TestRunResult = {
   id: string;
@@ -14,6 +15,7 @@ type TestRunResult = {
   output: string;
   error: string;
   executedAt: string;
+  durationMs?: number;
   installerVersion?: string;
   projectName?: string;
   version?: string;
@@ -31,6 +33,8 @@ type ExecutionGroup = {
   projectName: string;
   version: string;
   executedAt: string;
+  // Sum of the run's test durations
+  durationMs: number;
   total: number;
   passed: number;
   failed: number;
@@ -86,6 +90,7 @@ export default function Executions() {
             projectName: r.projectName ?? "",
             version: r.version ?? "",
             executedAt: r.executedAt,
+            durationMs: 0,
             total: 0,
             passed: 0,
             failed: 0,
@@ -96,6 +101,7 @@ export default function Executions() {
         const g = map.get(r.runId)!;
 
         g.total += 1;
+        g.durationMs += r.durationMs ?? 0;
 
         if (r.status === "Passed") g.passed += 1;
         else if (wasNotRun(r.status)) g.notRun += 1;
@@ -185,6 +191,12 @@ export default function Executions() {
             render={(_, r: ExecutionGroup) =>
               new Date(r.executedAt).toLocaleString()
             }
+          />
+
+          {/* How long the whole run took */}
+          <Table.Column
+            title="Duration"
+            render={(_, r: ExecutionGroup) => formatDuration(r.durationMs)}
           />
 
           {/* Total */}

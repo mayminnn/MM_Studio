@@ -19,7 +19,7 @@ namespace Test_Cases.Login
         {
             LoginPage.Login("a", "");
 
-            string expectedMessage = TestSettings.InvalidCredentialsMessage;
+            string expectedMessage = TestSettings.EmptyUsernameMessage;
 
             // find error text inside MainWindow
             var errorText = Retry.WhileNull(() =>

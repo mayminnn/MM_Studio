@@ -57,3 +57,13 @@ C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\71fc22d3-e
 C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\71fc22d3-e252-4688-9b87-4b983d2b3c36\scratchpad\apibuild\TestOps.API.runtimeconfig.json
 C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\71fc22d3-e252-4688-9b87-4b983d2b3c36\scratchpad\apibuild\TestOps.API.dll
 C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\71fc22d3-e252-4688-9b87-4b983d2b3c36\scratchpad\apibuild\TestOps.API.pdb
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\appsettings.Development.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\appsettings.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\Data\suites.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\results.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.staticwebassets.endpoints.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.exe
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.deps.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.runtimeconfig.json
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\apibuild\TestOps.API.pdb

@@ -6,6 +6,7 @@ import { statusColor } from "../utils/resultStatus";
 import BackButton from "../components/BackButton";
 import { getTestLinkIdMap, testLinkIdsFor } from "../services/testcaseService";
 import { testLinkUrl } from "../utils/testLink";
+import { formatDuration } from "../utils/duration";
 
 export default function ExecutionResult(){
 
@@ -85,6 +86,14 @@ export default function ExecutionResult(){
                     {result.status==="Not Run"
                         ? "-"
                         : new Date(result.executedAt).toLocaleString()}
+
+                </p>
+
+                <p>
+
+                    <b>Duration : </b>
+
+                    {formatDuration(result.durationMs)}
 
                 </p>
 
