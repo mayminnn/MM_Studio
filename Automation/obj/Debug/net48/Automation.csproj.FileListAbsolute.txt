@@ -28,3 +28,9 @@ C:\Users\maymtan\MM_Studio\Automation\bin\Debug\net48\System.Text.Encodings.Web.
 C:\Users\maymtan\MM_Studio\Automation\bin\Debug\net48\System.Text.Json.dll
 C:\Users\maymtan\MM_Studio\Automation\bin\Debug\net48\System.Threading.Tasks.Extensions.dll
 C:\Users\maymtan\MM_Studio\Automation\bin\Debug\net48\System.ValueTuple.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\x86\leptonica-1.82.0.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\x86\tesseract50.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\x64\leptonica-1.82.0.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\x64\tesseract50.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\Automation.dll
+C:\Users\maymtan\AppData\Local\Temp\claude\C--Users-maymtan-MM-Studio\5f2d4613-5d28-4dfc-87ca-b2b1c2c2f0de\scratchpad\tcbuild\Automation.pdb

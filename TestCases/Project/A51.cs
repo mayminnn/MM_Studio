@@ -1,6 +1,7 @@
 ﻿using Automation.Core;
 using Automation.Components;
 using Automation.Pages;
+using FlaUI.Core.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Test_Cases.Attributes;
@@ -34,16 +35,28 @@ namespace Test_Cases.Project
             // Use variable
             openDialog.OpenProject(ProjectName, Version);
 
+            // Wait for the project to finish loading before closing it
+            var projectTree = Retry.WhileNull(() =>
+                assistant.FindByAutomationId(mainWindow, "projectAdvTree", 2),
+                TimeSpan.FromSeconds(60), ignoreException: true).Result;
+
+            Assert.IsNotNull(projectTree, "Project did not load successfully");
+
             ribbon.ClickRibbonButton("Close Project");
 
-            // Verify log dynamically
-            var logUserControl = assistant.FindByAutomationId(mainWindow, "logUserControl");
-            var panel = assistant.FindByAutomationId(logUserControl, "panel");
-            var logListView = assistant.FindByAutomationId(panel, "logListView").OrThrow("logListView");
-            var logItems = logListView.FindAllDescendants();
+            // Verify log dynamically - wait for the message in case closing takes a while
+            string expectedLog = $"Project '{projectName}' closed.";
 
-            bool found = logItems.Any(e => e.Name != null &&
-                                          e.Name.Contains($"Project '{projectName}' closed."));
+            bool found = Retry.WhileFalse(() =>
+            {
+                var logUserControl = assistant.FindByAutomationId(mainWindow, "logUserControl", 2);
+                var panel = assistant.FindByAutomationId(logUserControl, "panel", 2);
+                var logListView = assistant.FindByAutomationId(panel, "logListView", 2);
+
+                return logListView != null &&
+                       logListView.FindAllDescendants().Any(e => e.Name != null &&
+                                                                 e.Name.Contains(expectedLog));
+            }, TimeSpan.FromSeconds(30), ignoreException: true).Result;
 
             Assert.IsTrue(found, $"Expected log not found for project {projectName}");
 
