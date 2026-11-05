@@ -73,5 +73,35 @@
     "Error": "",
     "ExecutedAt": "2026-11-05T16:00:51.0158558+08:00",
     "DurationMs": 26554
+  },
+  {
+    "Id": "e8965c2e-f051-4080-b7c7-93bbfd9cebb3",
+    "RunId": "952e83e4-dbe7-4204-bb29-2635d89c13e7",
+    "SuiteName": "Ad Hoc Run",
+    "ProjectName": "OX01G10",
+    "Version": "v1",
+    "InstallerVersion": "1.0.0.1158",
+    "ClassName": "A45",
+    "DisplayName": "Open Project",
+    "Status": "Passed",
+    "Output": "========== Test Runner ==========\n\r\nAssembly Loaded : C:\\Users\\maymtan\\MM_Studio\\TestRunner\\bin\\Debug\\net48\\TestCases.dll\n\r\nClass : Test_Cases.Project.A45\r\n\nRunning Setup...\r\n -\u003E BaseTest.Setup\r\nRunning Start...\r\n\nRunning Test : Open_Project\r\nValidation passed: Project loaded log found\r\nProject opened successfully\r\n\nPASS (10544 ms)\r\n\nRunning Cleanup...\r\n -\u003E BaseTest.Cleanup\r\n\n========== Finished ==========\r\n",
+    "Error": "",
+    "ExecutedAt": "2026-11-05T16:09:35.328848+08:00",
+    "DurationMs": 26771
+  },
+  {
+    "Id": "400094a8-0706-4a8b-b4a7-57d61484e5e7",
+    "RunId": "952e83e4-dbe7-4204-bb29-2635d89c13e7",
+    "SuiteName": "Ad Hoc Run",
+    "ProjectName": "OX01G10",
+    "Version": "v1",
+    "InstallerVersion": "1.0.0.1158",
+    "ClassName": "A51",
+    "DisplayName": "Close Project",
+    "Status": "Passed",
+    "Output": "========== Test Runner ==========\n\r\nAssembly Loaded : C:\\Users\\maymtan\\MM_Studio\\TestRunner\\bin\\Debug\\net48\\TestCases.dll\n\r\nClass : Test_Cases.Project.A51\r\n\nRunning Setup...\r\n -\u003E BaseTest.Setup\r\nRunning Start...\r\n\nRunning Test : Close_Project\r\nValidation passed: Project close log found\r\nProject closed successfully\r\n\nPASS (11841 ms)\r\n\nRunning Cleanup...\r\n -\u003E BaseTest.Cleanup\r\n\n========== Finished ==========\r\n",
+    "Error": "",
+    "ExecutedAt": "2026-11-05T16:10:02.2960536+08:00",
+    "DurationMs": 26957
   }
 ]
