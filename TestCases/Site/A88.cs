@@ -9,7 +9,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Site
 {
     [TestClass]
-    [TestTags("Site", "Smoke", "Positive", "Automated")]
+    [TestTags("Site", "Smoke", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-88")]
     public class A88 : BaseTest
     {

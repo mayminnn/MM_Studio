@@ -9,7 +9,7 @@ using Test_Cases.Attributes;
 namespace Test_Cases.Login
 {
     [TestClass]
-    [TestTags("Login", "Negative", "Automated")]
+    [TestTags("Login", "Negative", "Automated", "1.0")]
     [TestLinkIds("tFJ-32")]
     public class A32 : BaseTest
     {

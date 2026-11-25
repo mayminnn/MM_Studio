@@ -103,26 +103,22 @@ namespace Automation.Components
 
             Thread.Sleep(200);
 
-            Keyboard.Press(VirtualKeyShort.F2); // enter edit mode
-            Thread.Sleep(100);
-
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_A);
-            Keyboard.Release(VirtualKeyShort.KEY_A);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-
-            Thread.Sleep(100);
-
-            Keyboard.Press(VirtualKeyShort.DELETE);
+            // Clear only the selected cell. Do NOT use F2 + Ctrl+A here: if the cell
+            // is not in edit mode, Ctrl+A selects the whole sheet and Delete wipes it.
+            Keyboard.Type(VirtualKeyShort.DELETE);
             Thread.Sleep(200);
 
-            if (!string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
-                Keyboard.Type(value);
-                Thread.Sleep(100);
+                System.Diagnostics.Debug.WriteLine($"{cellName} cleared to blank");
+                return;
             }
 
-            Keyboard.Press(VirtualKeyShort.ENTER);
+            // Typing into a selected (not editing) cell replaces its content
+            Keyboard.Type(value);
+            Thread.Sleep(100);
+
+            Keyboard.Type(VirtualKeyShort.ENTER);
 
             Wait.UntilInputIsProcessed();
             Thread.Sleep(300);
@@ -278,12 +274,16 @@ namespace Automation.Components
                 .Trim();
         }
 
+        // The dropdown is a popup window, so look beside the main window as well as under it
+        private AutomationElement? FindOpenDropDown()
+        {
+            return _window.FindAllDescendants(cf => cf.ByName("DropDown")).FirstOrDefault(e => !e.IsOffscreen)
+                ?? _window.Automation.GetDesktop().FindAllChildren(cf => cf.ByName("DropDown")).FirstOrDefault(e => !e.IsOffscreen);
+        }
+
         private string[] GetVisibleDropdownItems()
         {
-            var dropdown = Retry.WhileNull(() =>
-                _window.FindAllDescendants(cf => cf.ByName("DropDown"))
-                       .FirstOrDefault(e => !e.IsOffscreen),
-                TimeSpan.FromSeconds(5))?.Result;
+            var dropdown = Retry.WhileNull(FindOpenDropDown, TimeSpan.FromSeconds(5))?.Result;
 
             if (dropdown == null)
                 throw new Exception("Dropdown container not found");
@@ -354,26 +354,9 @@ namespace Automation.Components
             SelectCellByFormula(cell);
             Thread.Sleep(200);
 
-            // Clear cell
-            Keyboard.Press(VirtualKeyShort.F2);
-            Thread.Sleep(100);
-
-            Keyboard.Press(VirtualKeyShort.CONTROL);
-            Keyboard.Press(VirtualKeyShort.KEY_A);
-            Keyboard.Release(VirtualKeyShort.KEY_A);
-            Keyboard.Release(VirtualKeyShort.CONTROL);
-            Thread.Sleep(100);
-
-            Keyboard.Press(VirtualKeyShort.DELETE);
+            // Clear only the selected cell (no F2 + Ctrl+A, which can select the whole sheet)
+            Keyboard.Type(VirtualKeyShort.DELETE);
             Thread.Sleep(200);
-
-            //Keyboard.Press(VirtualKeyShort.ESCAPE);
-            //Thread.Sleep(200);
-
-            Keyboard.Press(VirtualKeyShort.ENTER);
-            Thread.Sleep(200);
-
-            Keyboard.Press(VirtualKeyShort.UP);
 
             // If blank, stop here
             if (string.IsNullOrEmpty(value))
@@ -382,23 +365,41 @@ namespace Automation.Components
                 return;
             }
 
-            ExpandDropdownForCell();
+            // Let the grid settle back on the cell before opening the dropdown
+            Wait.UntilInputIsProcessed();
+            Thread.Sleep(300);
 
-            var dropdown = Retry.WhileNull(() =>
-                _window.FindAllDescendants(cf => cf.ByName("DropDown"))
-                       .FirstOrDefault(e => !e.IsOffscreen),
-                TimeSpan.FromSeconds(5))?.Result;
+            AutomationElement? dropdown = null;
+            for (int attempt = 1; attempt <= 3 && dropdown == null; attempt++)
+            {
+                if (attempt > 1)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Dropdown for {cell} did not open, retrying ({attempt}/3)...");
+                    SelectCellByFormula(cell);
+                    Thread.Sleep(300);
+                }
+
+                ExpandDropdownForCell();
+
+                dropdown = Retry.WhileNull(FindOpenDropDown, TimeSpan.FromSeconds(3))?.Result;
+            }
 
             if (dropdown == null)
-                throw new Exception("Dropdown container not found");
+                throw new Exception($"Dropdown container not found for {cell}");
 
-            var list = dropdown.FindFirstChild(cf => cf.ByControlType(ControlType.List));
+            var list = Retry.WhileNull(() =>
+                dropdown.FindFirstDescendant(cf => cf.ByControlType(ControlType.List)),
+                TimeSpan.FromSeconds(3))?.Result;
             if (list == null)
                 throw new Exception("Dropdown List not found inside DropDown container");
 
-            var item = list.FindFirstChild(cf => cf.ByName(value).And(cf.ByControlType(ControlType.ListItem)));
+            var item = list.FindFirstDescendant(cf => cf.ByName(value).And(cf.ByControlType(ControlType.ListItem)));
             if (item == null)
-                throw new Exception($"{value} not found in {cell}");
+            {
+                string available = string.Join(", ", list.FindAllDescendants(cf => cf.ByControlType(ControlType.ListItem))
+                    .Select(x => x.Name));
+                throw new Exception($"'{value}' not found in {cell} dropdown. Items: [{available}]");
+            }
 
             item.Click();
             Wait.UntilInputIsProcessed();

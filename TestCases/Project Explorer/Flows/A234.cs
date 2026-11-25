@@ -14,7 +14,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Flows
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Flows", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "Flows", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-215", "tFJ-234", "tFJ-235", "tFJ-237")]
     public class A234 : BaseTest
     {

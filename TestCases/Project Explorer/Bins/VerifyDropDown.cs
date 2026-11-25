@@ -10,7 +10,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Bins
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Bins", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "Bins", "Positive", "Automated", "1.0")]
     public class VerifyDropdown : BaseTest
     {
         private UIAssistant _assistant = null!;

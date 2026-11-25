@@ -11,7 +11,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Flows
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Flows", "Negative", "Automated")]
+    [TestTags("Project_Explorer", "Flows", "Negative", "Automated", "1.0")]
     public class CreateDuplicateFlowSheet : BaseTest
     {
         // Every project already has a Default sheet

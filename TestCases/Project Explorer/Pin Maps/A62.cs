@@ -9,7 +9,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Pin_Maps
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Pin_Maps", "Smoke", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "Pin_Maps", "Smoke", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-62")]
     public class A62 : BaseTest
     {

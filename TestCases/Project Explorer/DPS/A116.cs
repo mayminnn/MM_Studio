@@ -11,7 +11,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.DPS
 {
     [TestClass]
-    [TestTags("Project_Explorer", "DPS", "Negative", "Automated")]
+    [TestTags("Project_Explorer", "DPS", "Negative", "Automated", "1.0")]
     [TestLinkIds("tFJ-116")]
     public class A116 : BaseTest
     {
