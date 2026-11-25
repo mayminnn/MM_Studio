@@ -9,7 +9,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.DPS
 {
     [TestClass]
-    [TestTags("Project_Explorer", "DPS", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "DPS", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-128")]
     public class A128 : BaseTest
     {

@@ -8,7 +8,7 @@ using Test_Cases.Attributes;
 namespace Test_Cases.DPS
 {
     [TestClass]
-    [TestTags("Project_Explorer", "DPS", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "DPS", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-125")]
     public class A125 : BaseTest
     {

@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace Test_Cases.Login
 {
     [TestClass]
-    [TestTags("Login", "Smoke", "Positive", "Automated")]
+    [TestTags("Login", "Smoke", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-9")]
 
     public class A09 : BaseTest

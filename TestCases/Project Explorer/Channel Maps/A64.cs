@@ -11,7 +11,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Channel_Maps
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Channel_Maps", "Smoke", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "Channel_Maps", "Smoke", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-64")]
     public class A64 : BaseTest
     {

@@ -9,7 +9,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Project_Explorer.Bins
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Bins", "Automated", "Cleanup")]
+    [TestTags("Project_Explorer", "Bins", "Automated", "Cleanup", "1.0")]
     public class A104 : BaseTest
     {
         private UIAssistant _assistant = null!;

@@ -9,7 +9,7 @@ using Test_Cases.Login;
 namespace Test_Cases.Channel_Maps
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Channel_Maps", "Smoke", "Negative", "Automated")]
+    [TestTags("Project_Explorer", "Channel_Maps", "Smoke", "Negative", "Automated", "1.0")]
     [TestLinkIds("tFJ-65")]
     public class A65 : BaseTest
     {

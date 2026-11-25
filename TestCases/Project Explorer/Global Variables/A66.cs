@@ -11,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace Test_Cases.Project_Explorer.Global_Variables
 {
     [TestClass]
-    [TestTags("Project_Explorer", "Global_Variables", "Smoke", "Positive", "Automated")]
+    [TestTags("Project_Explorer", "Global_Variables", "Smoke", "Positive", "Automated", "1.0")]
     [TestLinkIds("tFJ-66")]
     public class A66 : BaseTest
     {
